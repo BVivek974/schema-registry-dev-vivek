@@ -69,6 +69,7 @@
         <module>json-schema-provider</module>
         <module>json-schema-serializer</module>
         <module>json-schema-serde</module>
+        <module>yang-schema-provider</module>
         <module>client-encryption</module>
         <module>client-encryption-aws</module>
         <module>client-encryption-azure</module>
@@ -430,6 +431,11 @@
             <dependency>
                 <groupId>io.confluent</groupId>
                 <artifactId>kafka-streams-json-schema-serde</artifactId>
+                <version>${io.confluent.schema-registry.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.confluent</groupId>
+                <artifactId>kafka-yang-schema-provider</artifactId>
                 <version>${io.confluent.schema-registry.version}</version>
             </dependency>
             <dependency>
