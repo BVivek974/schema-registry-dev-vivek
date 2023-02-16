@@ -72,6 +72,8 @@
         <module>client-encryption-tink</module>
         <module>dek-registry-client</module>
         <module>dek-registry</module>
+        <module>yang-schema-provider</module>
+        <module>client-encryption</module>
         <module>client-encryption-aws</module>
         <module>client-encryption-azure</module>
         <module>client-encryption-gcp</module>
@@ -450,6 +452,11 @@
             <dependency>
                 <groupId>io.confluent</groupId>
                 <artifactId>kafka-streams-json-schema-serde</artifactId>
+                <version>${io.confluent.schema-registry.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.confluent</groupId>
+                <artifactId>kafka-yang-schema-provider</artifactId>
                 <version>${io.confluent.schema-registry.version}</version>
             </dependency>
             <dependency>
