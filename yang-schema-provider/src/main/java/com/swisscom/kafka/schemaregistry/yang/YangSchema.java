@@ -26,6 +26,7 @@ import io.confluent.kafka.schemaregistry.client.rest.entities.RuleSet;
 import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yangcentral.yangkit.common.api.validate.ValidatorResult;
 import org.yangcentral.yangkit.model.api.schema.YangSchemaContext;
 import org.yangcentral.yangkit.model.api.stmt.Module;
 import org.yangcentral.yangkit.writter.YangFormatter;
@@ -186,7 +187,10 @@ public class YangSchema implements ParsedSchema {
 
   @Override
   public void validate() {
-    this.context.validate();
+    ValidatorResult result = this.context.validate();
+    if (!result.isOk()) {
+      throw new IllegalArgumentException("Invalid YANG schema: " + result);
+    }
   }
 
   @Override
