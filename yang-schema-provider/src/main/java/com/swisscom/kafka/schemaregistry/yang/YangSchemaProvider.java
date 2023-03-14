@@ -20,6 +20,9 @@ import io.confluent.kafka.schemaregistry.AbstractSchemaProvider;
 import io.confluent.kafka.schemaregistry.ParsedSchema;
 import io.confluent.kafka.schemaregistry.client.rest.entities.Schema;
 import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaReference;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yangcentral.yangkit.model.api.schema.YangSchemaContext;
@@ -28,10 +31,6 @@ import org.yangcentral.yangkit.model.api.stmt.Module;
 import org.yangcentral.yangkit.parser.YangParserException;
 import org.yangcentral.yangkit.register.YangStatementImplRegister;
 import org.yangcentral.yangkit.register.YangStatementRegister;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 public class YangSchemaProvider extends AbstractSchemaProvider {
 
@@ -97,8 +96,13 @@ public class YangSchemaProvider extends AbstractSchemaProvider {
       }
       YangSchema yangSchema =
           new YangSchema(
-              null, context, rootModule, schema.getReferences(), resolvedReferences, null);
-      schema.setSchema(yangSchema.canonicalString());
+              schema.getSchema(),
+              null,
+              context,
+              rootModule,
+              schema.getReferences(),
+              resolvedReferences,
+              null);
       return yangSchema;
     } catch (YangParserException e) {
       log.error("Error parsing Yang Schema", e);

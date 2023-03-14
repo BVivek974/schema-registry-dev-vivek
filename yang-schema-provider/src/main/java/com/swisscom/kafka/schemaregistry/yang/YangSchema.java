@@ -24,26 +24,24 @@ import io.confluent.kafka.schemaregistry.SchemaEntity;
 import io.confluent.kafka.schemaregistry.client.rest.entities.Metadata;
 import io.confluent.kafka.schemaregistry.client.rest.entities.RuleSet;
 import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.yangcentral.yangkit.common.api.validate.ValidatorResult;
-import org.yangcentral.yangkit.model.api.schema.YangSchemaContext;
-import org.yangcentral.yangkit.model.api.stmt.Module;
-import org.yangcentral.yangkit.writter.YangFormatter;
-import org.yangcentral.yangkit.writter.YangWriter;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.yangcentral.yangkit.common.api.validate.ValidatorResult;
+import org.yangcentral.yangkit.model.api.schema.YangSchemaContext;
+import org.yangcentral.yangkit.model.api.stmt.Module;
 
 public class YangSchema implements ParsedSchema {
   private static final Logger log = LoggerFactory.getLogger(YangSchema.class);
 
   public static final String TYPE = "YANG";
 
+  private final String schemaString;
   private final Module module;
   private final YangSchemaContext context;
   private final List<SchemaReference> references;
@@ -57,6 +55,7 @@ public class YangSchema implements ParsedSchema {
   private transient int hashCode = NO_HASHCODE;
 
   public YangSchema(
+      String schemaString,
       Integer version,
       YangSchemaContext context,
       Module module,
@@ -64,6 +63,7 @@ public class YangSchema implements ParsedSchema {
       Map<String, String> resolvedReferences,
       Metadata metadata) {
     log.debug("References: {}, and resolved references: {}", references, resolvedReferences);
+    this.schemaString = schemaString;
     this.version = version;
 
     this.context = context;
@@ -85,10 +85,7 @@ public class YangSchema implements ParsedSchema {
 
   @Override
   public String canonicalString() {
-    String canonicalString =
-        YangWriter.toYangString(this.module, YangFormatter.getPrettyYangFormatter(), null);
-    log.debug("Canonical YANG string: {}", canonicalString);
-    return canonicalString;
+    return this.schemaString;
   }
 
   @Override
@@ -114,6 +111,7 @@ public class YangSchema implements ParsedSchema {
   @Override
   public ParsedSchema copy() {
     return new YangSchema(
+        this.schemaString,
         this.version,
         this.context,
         this.module,
@@ -125,6 +123,7 @@ public class YangSchema implements ParsedSchema {
   @Override
   public ParsedSchema copy(Integer version) {
     return new YangSchema(
+        this.schemaString,
         version,
         this.context,
         this.module,
@@ -136,6 +135,7 @@ public class YangSchema implements ParsedSchema {
   @Override
   public ParsedSchema copy(Metadata metadata, RuleSet ruleSet) {
     return new YangSchema(
+        this.schemaString,
         this.version,
         this.context,
         this.module,
@@ -148,6 +148,7 @@ public class YangSchema implements ParsedSchema {
   public ParsedSchema copy(
       Map<SchemaEntity, Set<String>> tagsToAdd, Map<SchemaEntity, Set<String>> tagsToRemove) {
     return new YangSchema(
+        this.schemaString,
         this.version,
         this.context,
         this.module,
