@@ -96,13 +96,7 @@ public class YangSchemaProvider extends AbstractSchemaProvider {
       }
       YangSchema yangSchema =
           new YangSchema(
-              schema.getSchema(),
-              null,
-              context,
-              rootModule,
-              schema.getReferences(),
-              resolvedReferences,
-              null);
+              schema.getSchema(), context, rootModule, schema.getReferences(), resolvedReferences);
       return yangSchema;
     } catch (YangParserException e) {
       log.error("Error parsing Yang Schema", e);

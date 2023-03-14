@@ -16,6 +16,9 @@
 
 package io.confluent.kafka.schemaregistry.rest.yang;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import com.swisscom.kafka.schemaregistry.yang.YangSchema;
 import com.swisscom.kafka.schemaregistry.yang.YangSchemaUtils;
 import io.confluent.kafka.schemaregistry.ClusterTestHarness;
@@ -26,12 +29,6 @@ import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaString;
 import io.confluent.kafka.schemaregistry.client.rest.entities.requests.RegisterSchemaRequest;
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException;
 import io.confluent.kafka.schemaregistry.rest.exceptions.Errors;
-import org.junit.Assert;
-import org.junit.Test;
-import org.yangcentral.yangkit.model.api.schema.YangSchemaContext;
-import org.yangcentral.yangkit.model.api.stmt.Module;
-import org.yangcentral.yangkit.register.YangStatementRegister;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,9 +36,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import org.junit.Assert;
+import org.junit.Test;
+import org.yangcentral.yangkit.model.api.schema.YangSchemaContext;
+import org.yangcentral.yangkit.model.api.stmt.Module;
+import org.yangcentral.yangkit.register.YangStatementRegister;
 
 public class RestApiTest extends ClusterTestHarness {
 
@@ -60,7 +59,7 @@ public class RestApiTest extends ClusterTestHarness {
               + index
               + " {\n"
               + "  yang-version \"1.1\";\n"
-              + "  namespace \"urn:a\";\n"
+              + "  namespace \"urn:example:a\";\n"
               + "  prefix \"a"
               + index
               + "\";\n"
@@ -70,7 +69,7 @@ public class RestApiTest extends ClusterTestHarness {
               + "  }\n"
               + "  container x {\n"
               + "    leaf aLeaf {\n"
-              + "      type \"aType\";\n"
+              + "      type aType;\n"
               + "      description\n"
               + "        \"Example leaf\";\n"
               + "    }\n"
@@ -199,7 +198,8 @@ public class RestApiTest extends ClusterTestHarness {
     YangSchemaUtils.parseYangString("root", RootYangSchema, context);
     Module module = context.getModules().get(0);
 
-    YangSchema schema = new YangSchema(null, context, module, refs, Collections.emptyMap(), null);
+    YangSchema schema =
+        new YangSchema(RootYangSchema, context, module, refs, Collections.emptyMap());
     Schema registeredSchema =
         restApp.restClient.lookUpSubjectVersion(
             schema.canonicalString(), YangSchema.TYPE, schema.references(), "root", false);
