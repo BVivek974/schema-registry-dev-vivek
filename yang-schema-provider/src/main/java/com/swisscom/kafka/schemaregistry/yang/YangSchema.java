@@ -45,11 +45,10 @@ public class YangSchema implements ParsedSchema {
   private final Module module;
   private final YangSchemaContext context;
   private final List<SchemaReference> references;
-
   private final Map<String, String> resolvedReferences;
   private final Metadata metadata;
-
   private final Integer version;
+  private final RuleSet ruleSet;
 
   private static final int NO_HASHCODE = Integer.MIN_VALUE;
   private transient int hashCode = NO_HASHCODE;
@@ -61,8 +60,8 @@ public class YangSchema implements ParsedSchema {
       Module module,
       List<SchemaReference> references,
       Map<String, String> resolvedReferences,
-      Metadata metadata) {
-    log.debug("References: {}, and resolved references: {}", references, resolvedReferences);
+      Metadata metadata,
+      RuleSet ruleSet) {
     this.schemaString = schemaString;
     this.version = version;
 
@@ -71,6 +70,16 @@ public class YangSchema implements ParsedSchema {
     this.references = Collections.unmodifiableList(references);
     this.resolvedReferences = Collections.unmodifiableMap(resolvedReferences);
     this.metadata = metadata;
+    this.ruleSet = ruleSet;
+  }
+
+  public YangSchema(
+      String schemaString,
+      YangSchemaContext context,
+      Module module,
+      List<SchemaReference> references,
+      Map<String, String> resolvedReferences) {
+    this(schemaString, null, context, module, references, resolvedReferences, null, null);
   }
 
   @Override
@@ -105,7 +114,7 @@ public class YangSchema implements ParsedSchema {
 
   @Override
   public RuleSet ruleSet() {
-    return null;
+    return this.ruleSet;
   }
 
   @Override
@@ -117,7 +126,8 @@ public class YangSchema implements ParsedSchema {
         this.module,
         this.references,
         this.resolvedReferences,
-        this.metadata);
+        this.metadata,
+        this.ruleSet);
   }
 
   @Override
@@ -129,7 +139,8 @@ public class YangSchema implements ParsedSchema {
         this.module,
         this.references,
         this.resolvedReferences,
-        this.metadata);
+        this.metadata,
+        this.ruleSet);
   }
 
   @Override
@@ -141,20 +152,14 @@ public class YangSchema implements ParsedSchema {
         this.module,
         this.references,
         this.resolvedReferences,
-        metadata);
+        metadata,
+        this.ruleSet);
   }
 
   @Override
   public ParsedSchema copy(
       Map<SchemaEntity, Set<String>> tagsToAdd, Map<SchemaEntity, Set<String>> tagsToRemove) {
-    return new YangSchema(
-        this.schemaString,
-        this.version,
-        this.context,
-        this.module,
-        this.references,
-        this.resolvedReferences,
-        this.metadata);
+    throw new UnsupportedOperationException("Tag modifications is not implemented for YANG Schema");
   }
 
   public YangSchemaContext yangSchemaContext() {
