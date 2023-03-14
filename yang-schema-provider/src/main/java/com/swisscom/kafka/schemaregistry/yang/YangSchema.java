@@ -170,7 +170,7 @@ public class YangSchema implements ParsedSchema {
     YangSchema previousYangSchema = (YangSchema) previousSchema;
     YangComparator comparator =
         new YangComparator(this.context, previousYangSchema.yangSchemaContext());
-    String rule = "";
+    String rule = null;
     try {
       List<YangCompareResult> compareResults =
           comparator.compare(CompareType.COMPATIBLE_CHECK, rule);
