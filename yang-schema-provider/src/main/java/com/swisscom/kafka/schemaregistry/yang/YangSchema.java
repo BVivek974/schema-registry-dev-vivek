@@ -197,11 +197,9 @@ public class YangSchema implements ParsedSchema {
     if (!result.isOk()) {
       throw new IllegalArgumentException(
           "Invalid YANG schema:\n"
-              + String.join(
-                  "\n",
-                  result.getRecords().stream()
-                      .map(x -> x.toString())
-                      .collect(Collectors.toList())));
+              + result.getRecords().stream()
+                  .map(Object::toString)
+                  .collect(Collectors.joining("\n")));
     }
   }
 
