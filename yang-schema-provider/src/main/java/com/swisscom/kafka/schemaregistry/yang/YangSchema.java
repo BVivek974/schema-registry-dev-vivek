@@ -17,6 +17,7 @@
 package com.swisscom.kafka.schemaregistry.yang;
 
 import com.huawei.yang.comparator.CompareType;
+import com.huawei.yang.comparator.CompatibilityRule;
 import com.huawei.yang.comparator.YangComparator;
 import com.huawei.yang.comparator.YangCompareResult;
 import io.confluent.kafka.schemaregistry.ParsedSchema;
@@ -24,12 +25,18 @@ import io.confluent.kafka.schemaregistry.SchemaEntity;
 import io.confluent.kafka.schemaregistry.client.rest.entities.Metadata;
 import io.confluent.kafka.schemaregistry.client.rest.entities.RuleSet;
 import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaReference;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yangcentral.yangkit.common.api.validate.ValidatorResult;
@@ -166,6 +173,18 @@ public class YangSchema implements ParsedSchema {
     return this.context;
   }
 
+  private static void writeDom4jDoc(org.dom4j.Document doc, OutputStream outputStream) {
+    OutputFormat format = OutputFormat.createPrettyPrint();
+    try {
+      XMLWriter writer = new XMLWriter(outputStream, format);
+      writer.write(doc);
+      writer.close();
+      outputStream.close();
+    } catch (IOException exception) {
+      exception.printStackTrace();
+    }
+  }
+
   @Override
   public List<String> isBackwardCompatible(ParsedSchema previousSchema) {
     log.debug("Checking if schema is backward compatible: {} and {}", this, previousSchema);
@@ -175,11 +194,24 @@ public class YangSchema implements ParsedSchema {
     YangSchema previousYangSchema = (YangSchema) previousSchema;
     YangComparator comparator =
         new YangComparator(this.context, previousYangSchema.yangSchemaContext());
-    String rule = null;
+
     try {
-      List<YangCompareResult> compareResults =
-          comparator.compare(CompareType.COMPATIBLE_CHECK, rule);
-      return compareResults.stream().map(YangCompareResult::toString).collect(Collectors.toList());
+      CompareType compareType = CompareType.COMPATIBLE_CHECK;
+      List<YangCompareResult> compareResults = comparator.compare(compareType, null);
+      boolean nonBackwardCompatible =
+          compareResults.stream()
+              .map(x -> x.getCompatibilityInfo().getCompatibility())
+              .anyMatch(x -> x == CompatibilityRule.Compatibility.NBC);
+      List<String> ret = new ArrayList<>();
+      if (nonBackwardCompatible) {
+        boolean needCompatible = true;
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        writeDom4jDoc(
+            comparator.outputXmlCompareResult(compareResults, needCompatible, compareType),
+            byteArrayOutputStream);
+        ret.add(byteArrayOutputStream.toString());
+      }
+      return ret;
     } catch (Exception e) {
       log.error("Yang Schema Comparator exception", e);
       return Collections.singletonList("Incompatible schema types");
