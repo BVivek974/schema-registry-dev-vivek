@@ -16,13 +16,15 @@
 
 package com.swisscom.kafka.schemaregistry.yang;
 
+import com.huawei.yang.comparator.CompatibilityRules;
 import io.confluent.kafka.schemaregistry.AbstractSchemaProvider;
 import io.confluent.kafka.schemaregistry.ParsedSchema;
 import io.confluent.kafka.schemaregistry.client.rest.entities.Schema;
-import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaReference;
-import java.util.List;
+import java.io.File;
+import java.net.URL;
 import java.util.Map;
-import java.util.Optional;
+import org.dom4j.Document;
+import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yangcentral.yangkit.model.api.schema.YangSchemaContext;
@@ -34,44 +36,46 @@ import org.yangcentral.yangkit.register.YangStatementRegister;
 
 public class YangSchemaProvider extends AbstractSchemaProvider {
 
+  public static final String YANG_COMPARATOR_RULES_CONFIG = "yang.comparator.rules.path";
+  private static final String YANG_COMPARATOR_DEFAULT_RULES = "default-rules.xml";
   private static final Logger log = LoggerFactory.getLogger(YangSchemaProvider.class);
 
   public YangSchemaProvider() {
+    URL inputStream = YangSchema.class.getClassLoader().getResource(YANG_COMPARATOR_DEFAULT_RULES);
+    try {
+      SAXReader reader = new SAXReader();
+      Document document = reader.read(inputStream);
+      CompatibilityRules.getInstance().deserialize(document);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Couldn't load comparator rules", e);
+    }
     YangStatementImplRegister.registerImpl();
+  }
+
+  @Override
+  public void configure(Map<String, ?> configs) {
+    super.configure(configs);
+    Document document;
+    try {
+      if (configs.containsKey(YangSchemaProvider.YANG_COMPARATOR_RULES_CONFIG)) {
+        String rulesPath = (String) configs.get(YangSchemaProvider.YANG_COMPARATOR_RULES_CONFIG);
+        SAXReader reader = new SAXReader();
+        document = reader.read(new File(rulesPath));
+      } else {
+        URL rulesStream =
+            YangSchema.class.getClassLoader().getResource(YANG_COMPARATOR_DEFAULT_RULES);
+        SAXReader reader = new SAXReader();
+        document = reader.read(rulesStream);
+      }
+      CompatibilityRules.getInstance().deserialize(document);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Couldn't load comparator rules", e);
+    }
   }
 
   @Override
   public String schemaType() {
     return YangSchema.TYPE;
-  }
-
-  @Override
-  public Optional<ParsedSchema> parseSchema(Schema schema, boolean isNew) {
-    log.debug("parseSchema: {}, new: {}", schema, isNew);
-    return super.parseSchema(schema, isNew);
-  }
-
-  @Override
-  public Optional<ParsedSchema> parseSchema(Schema schema, boolean isNew, boolean normalize) {
-    log.debug("parseSchema: {}, new: {}, normalize: {}", schema, isNew, normalize);
-    return super.parseSchema(schema, isNew, normalize);
-  }
-
-  @Override
-  public Optional<ParsedSchema> parseSchema(
-      String schemaString, List<SchemaReference> references, boolean isNew) {
-    return super.parseSchema(schemaString, references, isNew);
-  }
-
-  @Override
-  public Optional<ParsedSchema> parseSchema(
-      String schemaString, List<SchemaReference> references, boolean isNew, boolean normalize) {
-    return super.parseSchema(schemaString, references, isNew, normalize);
-  }
-
-  @Override
-  public Optional<ParsedSchema> parseSchema(String schemaString, List<SchemaReference> references) {
-    return super.parseSchema(schemaString, references);
   }
 
   @Override
