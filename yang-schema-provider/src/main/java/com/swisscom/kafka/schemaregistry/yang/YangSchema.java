@@ -28,6 +28,7 @@ import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaReference;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -209,7 +210,7 @@ public class YangSchema implements ParsedSchema {
         writeDom4jDoc(
             comparator.outputXmlCompareResult(compareResults, needCompatible, compareType),
             byteArrayOutputStream);
-        ret.add(byteArrayOutputStream.toString());
+        ret.add(byteArrayOutputStream.toString(Charset.defaultCharset().name()));
       }
       return ret;
     } catch (Exception e) {
