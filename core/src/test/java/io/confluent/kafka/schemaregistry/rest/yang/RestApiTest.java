@@ -17,11 +17,13 @@
 package io.confluent.kafka.schemaregistry.rest.yang;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 import com.swisscom.kafka.schemaregistry.yang.YangSchema;
 import com.swisscom.kafka.schemaregistry.yang.YangSchemaUtils;
 import io.confluent.kafka.schemaregistry.ClusterTestHarness;
+import io.confluent.kafka.schemaregistry.CompatibilityLevel;
 import io.confluent.kafka.schemaregistry.client.rest.RestService;
 import io.confluent.kafka.schemaregistry.client.rest.entities.Schema;
 import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaReference;
@@ -29,13 +31,17 @@ import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaString;
 import io.confluent.kafka.schemaregistry.client.rest.entities.requests.RegisterSchemaRequest;
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException;
 import io.confluent.kafka.schemaregistry.rest.exceptions.Errors;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
 import org.yangcentral.yangkit.model.api.schema.YangSchemaContext;
@@ -206,6 +212,111 @@ public class RestApiTest extends ClusterTestHarness {
     assertEquals("Registered schema should be found", 2, registeredSchema.getId().intValue());
   }
 
+  @Test
+  public void testIETFYang10Schema() throws Exception {
+    Map<String, String> schemas = getIETFYang10SchemaWithDependencies();
+    String yangTypes = "ietf-yang-types";
+    registerAndVerifySchema(restApp.restClient, schemas.get(yangTypes), 1, yangTypes);
+
+
+    String interfaces = "ietf-interfaces";
+    RegisterSchemaRequest request = new RegisterSchemaRequest();
+    request.setSchema(schemas.get(interfaces));
+    request.setSchemaType(YangSchema.TYPE);
+    SchemaReference ref = new SchemaReference(yangTypes, yangTypes, 1);
+    List<SchemaReference> refs = Collections.singletonList(ref);
+    request.setReferences(refs);
+    int registeredId = restApp.restClient.registerSchema(request, interfaces, false);
+    assertEquals("Registering a new schema should succeed", 2, registeredId);
+
+    SchemaString schemaString = restApp.restClient.getId(2);
+    // the newly registered schema should be immediately readable on the leader
+    assertEquals(
+        "Registered schema should be found", schemas.get(interfaces), schemaString.getSchemaString());
+
+    assertEquals("Schema dependencies should be found", refs, schemaString.getReferences());
+
+    YangSchemaContext context = YangStatementRegister.getInstance().getSchemeContextInstance();
+    YangSchemaUtils.parseYangString(interfaces, schemas.get(interfaces), context);
+    Module module = context.getModules().get(0);
+
+    YangSchema schema =
+        new YangSchema(schemas.get(interfaces), context, module, refs, Collections.emptyMap());
+    Schema registeredSchema =
+        restApp.restClient.lookUpSubjectVersion(
+            schema.canonicalString(), YangSchema.TYPE, schema.references(), interfaces, false);
+    assertEquals("Registered schema should be found", 2, registeredSchema.getId().intValue());
+  }
+
+  @Test
+  public void testIETFYang11Schema() throws Exception {
+    Map<String, String> schemas = getIETFYang11SchemaWithDependencies();
+    String yangTypes = "ietf-yang-types";
+    registerAndVerifySchema(restApp.restClient, schemas.get(yangTypes), 1, yangTypes);
+
+
+    String interfaces = "ietf-interfaces";
+    RegisterSchemaRequest request = new RegisterSchemaRequest();
+    request.setSchema(schemas.get(interfaces));
+    request.setSchemaType(YangSchema.TYPE);
+    SchemaReference ref = new SchemaReference(yangTypes, yangTypes, 1);
+    List<SchemaReference> refs = Collections.singletonList(ref);
+    request.setReferences(refs);
+    int registeredId = restApp.restClient.registerSchema(request, interfaces, false);
+    assertEquals("Registering a new schema should succeed", 2, registeredId);
+
+    SchemaString schemaString = restApp.restClient.getId(2);
+    // the newly registered schema should be immediately readable on the leader
+    assertEquals(
+        "Registered schema should be found", schemas.get(interfaces), schemaString.getSchemaString());
+
+    assertEquals("Schema dependencies should be found", refs, schemaString.getReferences());
+
+    YangSchemaContext context = YangStatementRegister.getInstance().getSchemeContextInstance();
+    YangSchemaUtils.parseYangString(interfaces, schemas.get(interfaces), context);
+    Module module = context.getModules().get(0);
+
+    YangSchema schema =
+        new YangSchema(schemas.get(interfaces), context, module, refs, Collections.emptyMap());
+    Schema registeredSchema =
+        restApp.restClient.lookUpSubjectVersion(
+            schema.canonicalString(), YangSchema.TYPE, schema.references(), interfaces, false);
+    assertEquals("Registered schema should be found", 2, registeredSchema.getId().intValue());
+  }
+
+  @Test
+  public void testIETFYangSchemaCompatibility() throws Exception {
+    // Registering dependencies
+    Map<String, String> schemasYang10 = getIETFYang10SchemaWithDependencies();
+    Map<String, String> schemasYang11 = getIETFYang11SchemaWithDependencies();
+    String yangTypesSubject = "ietf-yang-types";
+    registerAndVerifySchema(restApp.restClient, schemasYang10.get(yangTypesSubject), 1, yangTypesSubject);
+    registerAndVerifySchema(restApp.restClient, schemasYang11.get(yangTypesSubject), 2, yangTypesSubject);
+
+    // Register interfaces for Yang 1.0 version
+    String interfacesSubject = "ietf-interfaces";
+    RegisterSchemaRequest requestYang10 = new RegisterSchemaRequest();
+    requestYang10.setSchema(schemasYang10.get(interfacesSubject));
+    requestYang10.setSchemaType(YangSchema.TYPE);
+    SchemaReference refYang10 = new SchemaReference(yangTypesSubject, yangTypesSubject, 1);
+    List<SchemaReference> refsYang10 = Collections.singletonList(refYang10);
+    requestYang10.setReferences(refsYang10);
+    int registeredId = restApp.restClient.registerSchema(requestYang10, interfacesSubject, false);
+    assertEquals("Registering a new schema should succeed", 3, registeredId);
+
+    restApp.restClient.updateCompatibility(CompatibilityLevel.BACKWARD.name, interfacesSubject);
+    // Register backward-incompatible interfaces for Yang 1.1
+    RegisterSchemaRequest requestYang11 = new RegisterSchemaRequest();
+    requestYang11.setSchema(schemasYang11.get(interfacesSubject));
+    requestYang11.setSchemaType(YangSchema.TYPE);
+    SchemaReference refYang11 = new SchemaReference(yangTypesSubject, yangTypesSubject, 2);
+    List<SchemaReference> refsYang11 = Collections.singletonList(refYang11);
+    requestYang11.setReferences(refsYang11);
+
+    boolean isCompatible = restApp.restClient.testCompatibility(requestYang11, interfacesSubject, "latest", true).isEmpty();
+    assertFalse("Schema should be incompatible with specified version", isCompatible);
+  }
+
   @Test(expected = RestClientException.class)
   public void testSchemaMissingReferences() throws Exception {
     Map<String, String> schemas = getYangSchemaWithDependencies();
@@ -291,7 +402,35 @@ public class RestApiTest extends ClusterTestHarness {
     return schemas;
   }
 
+  public static Map<String, String> getIETFYang10SchemaWithDependencies() {
+    String typesSchema = readFile("yang/ietf-yang-types@2010-09-24.yang");
+    String interfacesSchema = readFile("yang/ietf-interfaces@2014-05-08.yang");
+    Map<String, String> schemas = new HashMap<>();
+    schemas.put("ietf-yang-types", typesSchema);
+    schemas.put("ietf-interfaces", interfacesSchema);
+    return schemas;
+  }
+
+  public static Map<String, String> getIETFYang11SchemaWithDependencies() {
+    String typesSchema = readFile("yang/ietf-yang-types@2013-07-15.yang");
+    String interfacesSchema = readFile("yang/ietf-interfaces@2018-02-20.yang");
+    Map<String, String> schemas = new HashMap<>();
+    schemas.put("ietf-yang-types", typesSchema);
+    schemas.put("ietf-interfaces", interfacesSchema);
+    return schemas;
+  }
+
   public static String getBadSchema() {
     return "module bad {\n";
+  }
+
+  public static String readFile(String fileName) {
+    ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+    InputStream is = classLoader.getResourceAsStream(fileName);
+    if (is != null) {
+      BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+      return reader.lines().collect(Collectors.joining(System.lineSeparator()));
+    }
+    return null;
   }
 }
