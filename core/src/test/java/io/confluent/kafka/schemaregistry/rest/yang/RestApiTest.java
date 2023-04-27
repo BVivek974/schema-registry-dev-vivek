@@ -218,7 +218,6 @@ public class RestApiTest extends ClusterTestHarness {
     String yangTypes = "ietf-yang-types";
     registerAndVerifySchema(restApp.restClient, schemas.get(yangTypes), 1, yangTypes);
 
-
     String interfaces = "ietf-interfaces";
     RegisterSchemaRequest request = new RegisterSchemaRequest();
     request.setSchema(schemas.get(interfaces));
@@ -232,7 +231,9 @@ public class RestApiTest extends ClusterTestHarness {
     SchemaString schemaString = restApp.restClient.getId(2);
     // the newly registered schema should be immediately readable on the leader
     assertEquals(
-        "Registered schema should be found", schemas.get(interfaces), schemaString.getSchemaString());
+        "Registered schema should be found",
+        schemas.get(interfaces),
+        schemaString.getSchemaString());
 
     assertEquals("Schema dependencies should be found", refs, schemaString.getReferences());
 
@@ -254,7 +255,6 @@ public class RestApiTest extends ClusterTestHarness {
     String yangTypes = "ietf-yang-types";
     registerAndVerifySchema(restApp.restClient, schemas.get(yangTypes), 1, yangTypes);
 
-
     String interfaces = "ietf-interfaces";
     RegisterSchemaRequest request = new RegisterSchemaRequest();
     request.setSchema(schemas.get(interfaces));
@@ -268,7 +268,9 @@ public class RestApiTest extends ClusterTestHarness {
     SchemaString schemaString = restApp.restClient.getId(2);
     // the newly registered schema should be immediately readable on the leader
     assertEquals(
-        "Registered schema should be found", schemas.get(interfaces), schemaString.getSchemaString());
+        "Registered schema should be found",
+        schemas.get(interfaces),
+        schemaString.getSchemaString());
 
     assertEquals("Schema dependencies should be found", refs, schemaString.getReferences());
 
@@ -290,8 +292,10 @@ public class RestApiTest extends ClusterTestHarness {
     Map<String, String> schemasYang10 = getIETFYang10SchemaWithDependencies();
     Map<String, String> schemasYang11 = getIETFYang11SchemaWithDependencies();
     String yangTypesSubject = "ietf-yang-types";
-    registerAndVerifySchema(restApp.restClient, schemasYang10.get(yangTypesSubject), 1, yangTypesSubject);
-    registerAndVerifySchema(restApp.restClient, schemasYang11.get(yangTypesSubject), 2, yangTypesSubject);
+    registerAndVerifySchema(
+        restApp.restClient, schemasYang10.get(yangTypesSubject), 1, yangTypesSubject);
+    registerAndVerifySchema(
+        restApp.restClient, schemasYang11.get(yangTypesSubject), 2, yangTypesSubject);
 
     // Register interfaces for Yang 1.0 version
     String interfacesSubject = "ietf-interfaces";
@@ -313,7 +317,11 @@ public class RestApiTest extends ClusterTestHarness {
     List<SchemaReference> refsYang11 = Collections.singletonList(refYang11);
     requestYang11.setReferences(refsYang11);
 
-    boolean isCompatible = restApp.restClient.testCompatibility(requestYang11, interfacesSubject, "latest", true).isEmpty();
+    boolean isCompatible =
+        restApp
+            .restClient
+            .testCompatibility(requestYang11, interfacesSubject, "latest", false, true)
+            .isEmpty();
     assertFalse("Schema should be incompatible with specified version", isCompatible);
   }
 
