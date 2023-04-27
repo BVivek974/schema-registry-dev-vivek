@@ -16,7 +16,6 @@
 
 package com.swisscom.kafka.schemaregistry.yang;
 
-import com.huawei.yang.comparator.CompatibilityRules;
 import io.confluent.kafka.schemaregistry.AbstractSchemaProvider;
 import io.confluent.kafka.schemaregistry.ParsedSchema;
 import io.confluent.kafka.schemaregistry.client.rest.entities.Schema;
@@ -27,6 +26,7 @@ import org.dom4j.Document;
 import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yangcentral.yangkit.comparator.CompatibilityRules;
 import org.yangcentral.yangkit.model.api.schema.YangSchemaContext;
 import org.yangcentral.yangkit.model.api.stmt.Import;
 import org.yangcentral.yangkit.model.api.stmt.Module;
