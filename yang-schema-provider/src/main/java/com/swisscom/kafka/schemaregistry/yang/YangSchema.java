@@ -16,10 +16,6 @@
 
 package com.swisscom.kafka.schemaregistry.yang;
 
-import com.huawei.yang.comparator.CompareType;
-import com.huawei.yang.comparator.CompatibilityRule;
-import com.huawei.yang.comparator.YangComparator;
-import com.huawei.yang.comparator.YangCompareResult;
 import io.confluent.kafka.schemaregistry.ParsedSchema;
 import io.confluent.kafka.schemaregistry.SchemaEntity;
 import io.confluent.kafka.schemaregistry.client.rest.entities.Metadata;
@@ -41,6 +37,10 @@ import org.dom4j.io.XMLWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yangcentral.yangkit.common.api.validate.ValidatorResult;
+import org.yangcentral.yangkit.comparator.CompareType;
+import org.yangcentral.yangkit.comparator.CompatibilityRule;
+import org.yangcentral.yangkit.comparator.YangComparator;
+import org.yangcentral.yangkit.comparator.YangCompareResult;
 import org.yangcentral.yangkit.model.api.schema.YangSchemaContext;
 import org.yangcentral.yangkit.model.api.stmt.Module;
 
