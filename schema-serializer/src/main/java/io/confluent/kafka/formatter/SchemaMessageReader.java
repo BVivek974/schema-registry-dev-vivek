@@ -175,7 +175,6 @@ public abstract class SchemaMessageReader<T> implements MessageReader {
     if (props.containsKey("key.serializer")) {
       keySerializer = getSerializerProperty(true, props, "key.serializer");
     }
-
     if (this.serializer == null) {
       Map<String, Object> originals = getPropertiesMap(props);
       Object autoRegister = props.get("auto.register");
@@ -198,7 +197,6 @@ public abstract class SchemaMessageReader<T> implements MessageReader {
     valueSchema = getSchema(serializer.getSchemaRegistryClient(), props, false);
     final Object valueSubjectNameStrategy = config.valueSubjectNameStrategy();
     valueSubject = getSubjectName(valueSubjectNameStrategy, topic, false, valueSchema);
-
     if (needsKeySchema()) {
       keySchema = getSchema(serializer.getSchemaRegistryClient(), props, true);
       final Object keySubjectNameStrategy = config.keySubjectNameStrategy();

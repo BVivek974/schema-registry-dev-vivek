@@ -19,8 +19,13 @@
         </dependency>
         <dependency>
             <groupId>io.github.yang-central.yangkit</groupId>
+            <artifactId>yangkit-data-json-codec</artifactId>
+            <version>${yangkit.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.yang-central.yangkit</groupId>
             <artifactId>yangkit-parser</artifactId>
-            <version>1.3.5</version>
+            <version>${yangkit.version}</version>
         </dependency>
         <dependency>
             <groupId>io.github.yang-central.yangkit</groupId>

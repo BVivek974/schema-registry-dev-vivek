@@ -80,7 +80,6 @@ public class YangSchemaProvider extends AbstractSchemaProvider {
 
   @Override
   public ParsedSchema parseSchemaOrElseThrow(Schema schema, boolean isNew, boolean normalize) {
-    log.debug("parseSchemaOrElseThrow schema: {}, new: {}", schema, isNew);
     YangSchemaContext context = YangStatementRegister.getInstance().getSchemeContextInstance();
     Map<String, String> resolvedReferences = resolveReferences(schema);
 
@@ -98,9 +97,13 @@ public class YangSchemaProvider extends AbstractSchemaProvider {
           throw new IllegalArgumentException("Unresolved import: " + imported);
         }
       }
-      YangSchema yangSchema =
-          new YangSchema(
-              schema.getSchema(), context, rootModule, schema.getReferences(), resolvedReferences);
+      YangSchema yangSchema = new YangSchema(
+          schema.getSchema(),
+          context,
+          rootModule,
+          schema.getReferences(),
+          resolvedReferences
+      );
       return yangSchema;
     } catch (YangParserException e) {
       log.error("Error parsing Yang Schema", e);

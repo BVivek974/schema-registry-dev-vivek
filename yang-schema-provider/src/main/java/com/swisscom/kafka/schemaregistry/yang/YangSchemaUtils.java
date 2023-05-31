@@ -54,4 +54,8 @@ public class YangSchemaUtils {
       throws YangParserException {
     parseYangString(schema.getSubject(), schema.getSchema(), context);
   }
+
+  public static YangSchema copyOf(YangSchema schema) {
+    return schema.copy();
+  }
 }

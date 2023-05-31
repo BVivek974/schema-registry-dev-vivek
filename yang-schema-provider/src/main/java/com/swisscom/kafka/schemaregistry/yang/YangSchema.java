@@ -16,11 +16,28 @@
 
 package com.swisscom.kafka.schemaregistry.yang;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.confluent.kafka.schemaregistry.ParsedSchema;
 import io.confluent.kafka.schemaregistry.SchemaEntity;
 import io.confluent.kafka.schemaregistry.client.rest.entities.Metadata;
 import io.confluent.kafka.schemaregistry.client.rest.entities.RuleSet;
 import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaReference;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.yangcentral.yangkit.common.api.validate.ValidatorResult;
+import org.yangcentral.yangkit.common.api.validate.ValidatorResultBuilder;
+import org.yangcentral.yangkit.comparator.CompareType;
+import org.yangcentral.yangkit.comparator.CompatibilityRule;
+import org.yangcentral.yangkit.comparator.YangComparator;
+import org.yangcentral.yangkit.comparator.YangCompareResult;
+import org.yangcentral.yangkit.data.api.model.YangDataDocument;
+import org.yangcentral.yangkit.data.codec.json.YangDataParser;
+import org.yangcentral.yangkit.model.api.codec.YangCodecException;
+import org.yangcentral.yangkit.model.api.schema.YangSchemaContext;
+import org.yangcentral.yangkit.model.api.stmt.Module;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -32,17 +49,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.dom4j.io.OutputFormat;
-import org.dom4j.io.XMLWriter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.yangcentral.yangkit.common.api.validate.ValidatorResult;
-import org.yangcentral.yangkit.comparator.CompareType;
-import org.yangcentral.yangkit.comparator.CompatibilityRule;
-import org.yangcentral.yangkit.comparator.YangComparator;
-import org.yangcentral.yangkit.comparator.YangCompareResult;
-import org.yangcentral.yangkit.model.api.schema.YangSchemaContext;
-import org.yangcentral.yangkit.model.api.stmt.Module;
 
 public class YangSchema implements ParsedSchema {
   private static final Logger log = LoggerFactory.getLogger(YangSchema.class);
@@ -126,7 +132,7 @@ public class YangSchema implements ParsedSchema {
   }
 
   @Override
-  public ParsedSchema copy() {
+  public YangSchema copy() {
     return new YangSchema(
         this.schemaString,
         this.version,
@@ -139,7 +145,7 @@ public class YangSchema implements ParsedSchema {
   }
 
   @Override
-  public ParsedSchema copy(Integer version) {
+  public YangSchema copy(Integer version) {
     return new YangSchema(
         this.schemaString,
         version,
@@ -152,7 +158,7 @@ public class YangSchema implements ParsedSchema {
   }
 
   @Override
-  public ParsedSchema copy(Metadata metadata, RuleSet ruleSet) {
+  public YangSchema copy(Metadata metadata, RuleSet ruleSet) {
     return new YangSchema(
         this.schemaString,
         this.version,
@@ -161,7 +167,7 @@ public class YangSchema implements ParsedSchema {
         this.references,
         this.resolvedReferences,
         metadata,
-        this.ruleSet);
+        ruleSet);
   }
 
   @Override
@@ -236,6 +242,30 @@ public class YangSchema implements ParsedSchema {
     }
   }
 
+  public void validate(JsonNode jsonNode) throws YangCodecException {
+    validate(context, jsonNode);
+  }
+
+  public static void validate(YangSchemaContext schemaContext, JsonNode jsonNode)
+      throws YangCodecException {
+    System.out.println("TODO_ALEX: validate jsonNode against Module");
+    System.out.println("Schema Context:" + schemaContext.getModules().size());
+    for (Module module : schemaContext.getModules()) {
+      System.out.println("Modules:" + module.getModuleId().getModuleName());
+    }
+
+    System.out.println("Json node:" + jsonNode + " -- " + jsonNode.isNull());
+    ValidatorResultBuilder validatorResultBuilder = new ValidatorResultBuilder();
+    YangDataDocument yangDataDocument = new YangDataParser(
+        jsonNode, schemaContext, false).parse(validatorResultBuilder);
+    yangDataDocument.update();
+    ValidatorResult validationResult = yangDataDocument.validate();
+
+    if (!validationResult.isOk()) {
+      throw new YangCodecException("YANG encoded message is not valid");
+    }
+  }
+
   @Override
   public int hashCode() {
     if (hashCode == NO_HASHCODE) {
@@ -256,4 +286,5 @@ public class YangSchema implements ParsedSchema {
   public Module rawSchema() {
     return this.module;
   }
+
 }

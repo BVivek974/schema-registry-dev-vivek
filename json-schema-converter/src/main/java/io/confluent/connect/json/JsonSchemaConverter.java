@@ -158,6 +158,7 @@ public class JsonSchemaConverter extends AbstractKafkaSchemaSerDe implements Con
 
     public Serializer(SchemaRegistryClient client, boolean autoRegisterSchema) {
       schemaRegistry = client;
+      System.out.println("adding autoregisterSchema hereee ! " + autoRegisterSchema);
       this.autoRegisterSchema = autoRegisterSchema;
     }
 

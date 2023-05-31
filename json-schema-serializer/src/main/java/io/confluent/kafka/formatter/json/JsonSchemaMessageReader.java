@@ -38,6 +38,8 @@ import io.confluent.kafka.schemaregistry.json.JsonSchema;
 import io.confluent.kafka.schemaregistry.json.JsonSchemaProvider;
 import io.confluent.kafka.schemaregistry.json.jackson.Jackson;
 import io.confluent.kafka.serializers.json.AbstractKafkaJsonSchemaSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Example
@@ -83,6 +85,7 @@ public class JsonSchemaMessageReader extends SchemaMessageReader<JsonNode>
     implements MessageReader {
 
   private static final ObjectMapper objectMapper = Jackson.newObjectMapper();
+  private static final Logger log = LoggerFactory.getLogger(JsonSchemaMessageReader.class);
 
   /**
    * Constructor needed by kafka console producer.
@@ -120,6 +123,7 @@ public class JsonSchemaMessageReader extends SchemaMessageReader<JsonNode>
 
   @Override
   protected JsonNode readFrom(String jsonString, ParsedSchema schema) {
+    log.info("readFrom " + jsonString);
     try {
       return objectMapper.readTree(jsonString);
     } catch (IOException | ValidationException e) {
@@ -138,6 +142,7 @@ public class JsonSchemaMessageReader extends SchemaMessageReader<JsonNode>
 
     @Override
     public void configure(Map<String, ?> configs, boolean isKey) {
+      log.info("Configuring kafkaJsonSchemaSerializerConfig");
       if (!configs.containsKey(KafkaJsonSchemaSerializerConfig.FAIL_INVALID_SCHEMA)) {
         ((Map<String, Object>) configs).put(
             KafkaJsonSchemaSerializerConfig.FAIL_INVALID_SCHEMA, "true");
