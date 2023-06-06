@@ -615,7 +615,7 @@ public class RestApiTest extends ClusterTestHarness {
 
   @Test
   public void testGetSchemaTypes() throws Exception {
-    assertEquals(new HashSet<>(Arrays.asList("AVRO", "JSON", "PROTOBUF")),
+    assertEquals(new HashSet<>(Arrays.asList("YANG", "AVRO", "JSON", "PROTOBUF")),
         new HashSet<>(restApp.restClient.getSchemaTypes()));
   }
 
@@ -2036,4 +2036,3 @@ public class RestApiTest extends ClusterTestHarness {
     return baseUrl.replaceFirst("/$", "") + "/" + path.replaceFirst("^/", "");
   }
 }
-
