@@ -37,13 +37,17 @@ public class YangSchemaUtils {
     yangParserEnv.setFilename(name);
     yangParserEnv.setCurPos(0);
     List<YangElement> elementList = yangParser.parseYang(schemaString, yangParserEnv);
-    context.getParseResult().put(name, elementList);
     // Add the yang module to the context;
     for (YangElement element : elementList) {
       if (element instanceof YangStatement) {
         context.addModule((Module) element);
       }
     }
+    String moduleName = name;
+    if (context.getModules().size() > 0) {
+      moduleName = context.getModules().get(0).getModuleId().getModuleName();
+    }
+    context.getParseResult().put(moduleName, elementList);
   }
 
   public static void parseSchema(Schema schema, YangSchemaContext context)
