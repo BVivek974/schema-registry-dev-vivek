@@ -82,7 +82,7 @@ public class YangSchemaProvider extends AbstractSchemaProvider {
   public ParsedSchema parseSchemaOrElseThrow(Schema schema, boolean isNew, boolean normalize) {
     log.debug("parseSchemaOrElseThrow schema: {}, new: {}", schema, isNew);
     YangSchemaContext context = YangStatementRegister.getInstance().getSchemeContextInstance();
-    Map<String, String> resolvedReferences = resolveReferences(schema.getReferences());
+    Map<String, String> resolvedReferences = resolveReferences(schema);
 
     try {
       // Parse first resolved references
