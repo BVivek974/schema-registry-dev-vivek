@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.insa.kafka.serializers.yang;
+package com.insa.kafka.serializers.yang.json;
 
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import org.apache.kafka.common.config.ConfigDef;
@@ -24,11 +24,11 @@ import java.util.Map;
 public class KafkaYangSchemaDeserializerConfig extends AbstractKafkaSchemaSerDeConfig {
 
 
-  public static final String YANG_JSON_FAIL_UNKNOWN_PROPERTIES = "yang.fail.unknown.properties";
+  public static final String YANG_JSON_FAIL_UNKNOWN_PROPERTIES = "yang.json.fail.unknown.properties";
   public static final boolean YANG_JSON_FAIL_UNKNOWN_PROPERTIES_DEFAULT = true;
   public static final String YANG_JSON_FAIL_UNKNOWN_PROPERTIES_DOC = "Whether to fail "
       + "deserialization if unknown YANG-JSON properties are encountered";
-  public static final String YANG_JSON_FAIL_INVALID_SCHEMA = "yang.fail.invalid.schema";
+  public static final String YANG_JSON_FAIL_INVALID_SCHEMA = "yang.json.fail.invalid.schema";
   public static final boolean YANG_JSON_FAIL_INVALID_SCHEMA_DEFAULT = false;
   public static final String YANG_JSON_FAIL_INVALID_SCHEMA_DOC = "Whether to fail deserialization"
       + "if the YANG-JSON payload does not match the schema";

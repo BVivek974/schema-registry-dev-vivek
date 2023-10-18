@@ -74,6 +74,7 @@
         <module>dek-registry</module>
         <module>yang-schema-provider</module>
         <module>yang-json-schema-serializer</module>
+        <module>yang-cbor-schema-serializer</module>
         <module>yang-json-schema-serde</module>
         <module>client-encryption</module>
         <module>client-encryption-aws</module>

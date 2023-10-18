@@ -17,9 +17,9 @@
 package com.insa.kafka.streams.serdes.yangjson;
 
 
-import com.insa.kafka.serializers.yang.KafkaYangSchemaDeserializer;
-import com.insa.kafka.serializers.yang.KafkaYangSchemaDeserializerConfig;
-import com.insa.kafka.serializers.yang.KafkaYangSchemaSerializer;
+import com.insa.kafka.serializers.yang.json.KafkaYangSchemaDeserializer;
+import com.insa.kafka.serializers.yang.json.KafkaYangSchemaDeserializerConfig;
+import com.insa.kafka.serializers.yang.json.KafkaYangSchemaSerializer;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;

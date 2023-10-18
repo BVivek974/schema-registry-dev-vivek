@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.insa.kafka.serializers.yang;
+package com.insa.kafka.serializers.yang.json;
 
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import org.apache.kafka.common.header.Headers;

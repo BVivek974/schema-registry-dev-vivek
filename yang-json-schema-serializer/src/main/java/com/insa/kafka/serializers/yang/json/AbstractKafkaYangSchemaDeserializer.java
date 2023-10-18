@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.insa.kafka.serializers.yang;
+package com.insa.kafka.serializers.yang.json;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -44,12 +44,10 @@ import java.util.Map;
 public abstract class AbstractKafkaYangSchemaDeserializer<T> extends AbstractKafkaSchemaSerDe {
 
   protected ObjectMapper objectMapper = Jackson.newObjectMapper();
-  protected Class<T> type;
   protected boolean validate;
 
   protected void configure(KafkaYangSchemaDeserializerConfig config, Class<T> type) {
     configureClientProperties(config, new YangSchemaProvider());
-    this.type = type;
 
     boolean failUnknownProperties =
         config.getBoolean(KafkaYangSchemaDeserializerConfig.YANG_JSON_FAIL_UNKNOWN_PROPERTIES);
@@ -158,10 +156,6 @@ public abstract class AbstractKafkaYangSchemaDeserializer<T> extends AbstractKaf
               + " does not match YANG schema "
               + schema.canonicalString(), e);
         }
-      }
-      if (type != null) {
-        //TODO: not implemented
-        System.out.println("Type: " +  type.getName());
       }
       if (jsonNode == null) {
         jsonNode = objectMapper.readValue(buffer.array(), start, length, JsonNode.class);

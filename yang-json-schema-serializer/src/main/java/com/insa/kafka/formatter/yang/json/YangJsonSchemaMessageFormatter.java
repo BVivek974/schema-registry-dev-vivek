@@ -18,8 +18,8 @@ package com.insa.kafka.formatter.yang.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.insa.kafka.serializers.yang.AbstractKafkaYangSchemaDeserializer;
-import com.insa.kafka.serializers.yang.KafkaYangSchemaDeserializerConfig;
+import com.insa.kafka.serializers.yang.json.AbstractKafkaYangSchemaDeserializer;
+import com.insa.kafka.serializers.yang.json.KafkaYangSchemaDeserializerConfig;
 import com.swisscom.kafka.schemaregistry.yang.YangSchemaProvider;
 import io.confluent.kafka.formatter.SchemaMessageDeserializer;
 import io.confluent.kafka.formatter.SchemaMessageFormatter;

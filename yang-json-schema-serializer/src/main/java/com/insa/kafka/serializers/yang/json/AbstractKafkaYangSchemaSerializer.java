@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.insa.kafka.serializers.yang;
+package com.insa.kafka.serializers.yang.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -84,7 +84,7 @@ public abstract class AbstractKafkaYangSchemaSerializer<T> extends AbstractKafka
         id = schemaRegistry.getId(subject, schema, normalizeSchema);
       }
       System.out.println("--> YANG SchemaID:" + id);
-      System.out.println("Schemareg:" + restClientErrorMsg);
+      //System.out.println("Schemareg:" + restClientErrorMsg);
       object = (T) executeRules(subject, topic, headers, RuleMode.WRITE, null, schema, object);
       if (validate) {
         validateYangJson(object, schema);
