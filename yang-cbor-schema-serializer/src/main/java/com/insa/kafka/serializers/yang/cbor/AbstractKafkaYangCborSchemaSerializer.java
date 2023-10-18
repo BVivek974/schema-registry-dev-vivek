@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.insa.kafka.serializers.yang.json;
+package com.insa.kafka.serializers.yang.cbor;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
 import com.swisscom.kafka.schemaregistry.yang.YangSchema;
 import com.swisscom.kafka.schemaregistry.yang.YangSchemaProvider;
 import io.confluent.kafka.schemaregistry.client.rest.entities.RuleMode;
@@ -33,7 +34,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public abstract class AbstractKafkaYangSchemaSerializer<T> extends AbstractKafkaSchemaSerDe {
+public abstract class AbstractKafkaYangCborSchemaSerializer<T> extends AbstractKafkaSchemaSerDe {
 
   protected boolean normalizeSchema;
   protected boolean autoRegisterSchema;
@@ -41,16 +42,16 @@ public abstract class AbstractKafkaYangSchemaSerializer<T> extends AbstractKafka
   protected boolean idCompatStrict;
   protected boolean validate;
 
-  protected ObjectMapper objectMapper = Jackson.newObjectMapper();
+  protected ObjectMapper objectMapper = Jackson.newObjectMapper(new CBORFactory());
 
-  protected void configure(KafkaYangSchemaSerializerConfig config) {
+  protected void configure(KafkaYangCborSchemaSerializerConfig config) {
     configureClientProperties(config, new YangSchemaProvider());
     this.normalizeSchema = config.normalizeSchema();
     this.autoRegisterSchema = config.autoRegisterSchema();
     this.useSchemaId = config.useSchemaId();
     this.idCompatStrict = config.getIdCompatibilityStrict();
     this.validate = config.getBoolean(
-        KafkaYangSchemaSerializerConfig.YANG_JSON_FAIL_INVALID_SCHEMA);
+        KafkaYangCborSchemaSerializerConfig.YANG_CBOR_FAIL_INVALID_SCHEMA);
   }
 
   protected byte[] serializeImpl(
@@ -87,7 +88,7 @@ public abstract class AbstractKafkaYangSchemaSerializer<T> extends AbstractKafka
       //System.out.println("Schemareg:" + restClientErrorMsg);
       object = (T) executeRules(subject, topic, headers, RuleMode.WRITE, null, schema, object);
       if (validate) {
-        validateYangJson(object, schema);
+        validateYangCborMessage(object, schema);
       }
 
       ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -106,8 +107,8 @@ public abstract class AbstractKafkaYangSchemaSerializer<T> extends AbstractKafka
     }
   }
 
-  protected void validateYangJson(T object,
-                                  YangSchema schema)
+  protected void validateYangCborMessage(T object,
+                                         YangSchema schema)
       throws SerializationException, YangCodecException {
     JsonNode jsonNode = objectMapper.convertValue(object, JsonNode.class);
     schema.validate(jsonNode);

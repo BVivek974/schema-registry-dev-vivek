@@ -22,24 +22,24 @@ import org.apache.kafka.common.serialization.Deserializer;
 
 import java.util.Map;
 
-public class KafkaYangSchemaDeserializer<T> extends AbstractKafkaYangSchemaDeserializer<T>
+public class KafkaYangJsonSchemaDeserializer<T> extends AbstractKafkaYangJsonSchemaDeserializer<T>
     implements Deserializer<T> {
 
   /**
    * Constructor used by Kafka consumer.
    */
-  public KafkaYangSchemaDeserializer() {
+  public KafkaYangJsonSchemaDeserializer() {
   }
 
-  public KafkaYangSchemaDeserializer(SchemaRegistryClient client) {
+  public KafkaYangJsonSchemaDeserializer(SchemaRegistryClient client) {
     this.schemaRegistry = client;
   }
 
-  public KafkaYangSchemaDeserializer(SchemaRegistryClient client, Map<String, ?> props) {
+  public KafkaYangJsonSchemaDeserializer(SchemaRegistryClient client, Map<String, ?> props) {
     this(client, props, null);
   }
 
-  public KafkaYangSchemaDeserializer(
+  public KafkaYangJsonSchemaDeserializer(
       SchemaRegistryClient client,
       Map<String, ?> props,
       Class<T> type
@@ -51,10 +51,10 @@ public class KafkaYangSchemaDeserializer<T> extends AbstractKafkaYangSchemaDeser
 
   @Override
   public void configure(Map<String, ?> props, boolean isKey) {
-    configure(new KafkaYangSchemaDeserializerConfig(props), isKey);
+    configure(new KafkaYangJsonSchemaDeserializerConfig(props), isKey);
   }
 
-  protected void configure(KafkaYangSchemaDeserializerConfig config, boolean isKey) {
+  protected void configure(KafkaYangJsonSchemaDeserializerConfig config, boolean isKey) {
     this.isKey = isKey;
     //if (isKey) {
     //configure(

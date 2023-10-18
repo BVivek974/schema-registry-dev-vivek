@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.insa.kafka.formatter.yang.json;
+package com.insa.kafka.formatter.yang.cbor;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.insa.kafka.serializers.yang.json.AbstractKafkaYangJsonSchemaDeserializer;
-import com.insa.kafka.serializers.yang.json.KafkaYangJsonSchemaDeserializerConfig;
+import com.insa.kafka.serializers.yang.cbor.AbstractKafkaYangCborSchemaDeserializer;
+import com.insa.kafka.serializers.yang.cbor.KafkaYangCborSchemaDeserializerConfig;
 import com.swisscom.kafka.schemaregistry.yang.YangSchemaProvider;
 import io.confluent.kafka.formatter.SchemaMessageDeserializer;
 import io.confluent.kafka.formatter.SchemaMessageFormatter;
@@ -34,15 +34,15 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Map;
 
-public class YangJsonSchemaMessageFormatter extends SchemaMessageFormatter<JsonNode> {
+public class YangCborSchemaMessageFormatter extends SchemaMessageFormatter<JsonNode> {
 
   private static final ObjectMapper objectMapper = Jackson.newObjectMapper();
 
-  public YangJsonSchemaMessageFormatter() {}
+  public YangCborSchemaMessageFormatter() {}
 
   @Override
   protected SchemaMessageDeserializer createDeserializer(Deserializer keyDeserializer) {
-    return new YangJsonSchemaMessageDeserializer(keyDeserializer);
+    return new YangSchemaMessageDeserializer(keyDeserializer);
   }
 
   @Override
@@ -57,23 +57,23 @@ public class YangJsonSchemaMessageFormatter extends SchemaMessageFormatter<JsonN
     return new YangSchemaProvider();
   }
 
-  static class YangJsonSchemaMessageDeserializer
-      extends AbstractKafkaYangJsonSchemaDeserializer<JsonNode>
+  static class YangSchemaMessageDeserializer
+      extends AbstractKafkaYangCborSchemaDeserializer<JsonNode>
       implements SchemaMessageDeserializer<JsonNode> {
 
     protected final Deserializer keyDeserializer;
 
-    YangJsonSchemaMessageDeserializer(Deserializer keyDeserializer) {
+    YangSchemaMessageDeserializer(Deserializer keyDeserializer) {
       this.keyDeserializer = keyDeserializer;
     }
 
     @Override
     public void configure(Map<String, ?> configs, boolean isKey) {
       if (!configs.containsKey(
-          KafkaYangJsonSchemaDeserializerConfig.YANG_JSON_FAIL_INVALID_SCHEMA
-      )) {
+          KafkaYangCborSchemaDeserializerConfig.YANG_CBOR_FAIL_INVALID_SCHEMA)
+      ) {
         ((Map<String, Object>) configs).put(
-            KafkaYangJsonSchemaDeserializerConfig.YANG_JSON_FAIL_INVALID_SCHEMA, "true");
+            KafkaYangCborSchemaDeserializerConfig.YANG_CBOR_FAIL_INVALID_SCHEMA, "true");
         configure(deserializerConfig(configs), null);
       }
     }

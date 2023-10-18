@@ -41,27 +41,27 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public abstract class AbstractKafkaYangSchemaDeserializer<T> extends AbstractKafkaSchemaSerDe {
+public abstract class AbstractKafkaYangJsonSchemaDeserializer<T> extends AbstractKafkaSchemaSerDe {
 
   protected ObjectMapper objectMapper = Jackson.newObjectMapper();
   protected boolean validate;
 
-  protected void configure(KafkaYangSchemaDeserializerConfig config, Class<T> type) {
+  protected void configure(KafkaYangJsonSchemaDeserializerConfig config, Class<T> type) {
     configureClientProperties(config, new YangSchemaProvider());
 
     boolean failUnknownProperties =
-        config.getBoolean(KafkaYangSchemaDeserializerConfig.YANG_JSON_FAIL_UNKNOWN_PROPERTIES);
+        config.getBoolean(KafkaYangJsonSchemaDeserializerConfig.YANG_JSON_FAIL_UNKNOWN_PROPERTIES);
     this.objectMapper.configure(
         DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
         failUnknownProperties
     );
     this.validate =
-        config.getBoolean(KafkaYangSchemaDeserializerConfig.YANG_JSON_FAIL_UNKNOWN_PROPERTIES);
+        config.getBoolean(KafkaYangJsonSchemaDeserializerConfig.YANG_JSON_FAIL_UNKNOWN_PROPERTIES);
   }
 
-  protected KafkaYangSchemaDeserializerConfig deserializerConfig(Map<String, ?> props) {
+  protected KafkaYangJsonSchemaDeserializerConfig deserializerConfig(Map<String, ?> props) {
     try {
-      return new KafkaYangSchemaDeserializerConfig(props);
+      return new KafkaYangJsonSchemaDeserializerConfig(props);
     } catch (ConfigException e) {
       throw new ConfigException(e.getMessage());
     }

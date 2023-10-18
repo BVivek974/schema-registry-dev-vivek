@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.insa.kafka.formatter.yang.json;
+package com.insa.kafka.formatter.yang.cbor;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.insa.kafka.serializers.yang.json.AbstractKafkaYangJsonSchemaSerializer;
-import com.insa.kafka.serializers.yang.json.KafkaYangJsonSchemaSerializerConfig;
+import com.insa.kafka.serializers.yang.cbor.AbstractKafkaYangCborSchemaSerializer;
+import com.insa.kafka.serializers.yang.cbor.KafkaYangCborSchemaDeserializerConfig;
+import com.insa.kafka.serializers.yang.cbor.KafkaYangCborSchemaSerializerConfig;
 import com.swisscom.kafka.schemaregistry.yang.YangSchema;
 import com.swisscom.kafka.schemaregistry.yang.YangSchemaProvider;
 import io.confluent.kafka.formatter.SchemaMessageReader;
@@ -37,7 +38,7 @@ import org.everit.json.schema.ValidationException;
 import java.io.IOException;
 import java.util.Map;
 
-public class YangJsonSchemaMessageReader extends SchemaMessageReader<JsonNode>
+public class YangCborSchemaMessageReader extends SchemaMessageReader<JsonNode>
     implements MessageReader {
 
   private static final ObjectMapper objectMapper = Jackson.newObjectMapper();
@@ -45,12 +46,12 @@ public class YangJsonSchemaMessageReader extends SchemaMessageReader<JsonNode>
   /**
    * Constructor needed by kafka console producer.
    */
-  public YangJsonSchemaMessageReader() {
+  public YangCborSchemaMessageReader() {
   }
 
   @Override
   protected SchemaMessageSerializer<JsonNode> createSerializer(Serializer keySerializer) {
-    return new YangJsonJsonSchemaSerializer(keySerializer);
+    return new YangJsonSchemaSerializer(keySerializer);
   }
 
   @Override
@@ -68,24 +69,24 @@ public class YangJsonSchemaMessageReader extends SchemaMessageReader<JsonNode>
     return new YangSchemaProvider();
   }
 
-  static class YangJsonJsonSchemaSerializer extends AbstractKafkaYangJsonSchemaSerializer<JsonNode>
+  static class YangJsonSchemaSerializer extends AbstractKafkaYangCborSchemaSerializer<JsonNode>
       implements SchemaMessageSerializer<JsonNode> {
 
     protected final Serializer keySerializer;
 
-    YangJsonJsonSchemaSerializer(Serializer keySerializer) {
+    YangJsonSchemaSerializer(Serializer keySerializer) {
       this.keySerializer = keySerializer;
     }
 
     @Override
     public void configure(Map<String, ?> configs, boolean isKey) {
       if (!configs.containsKey(
-          KafkaYangJsonSchemaSerializerConfig.YANG_JSON_FAIL_INVALID_SCHEMA)
+          KafkaYangCborSchemaDeserializerConfig.YANG_CBOR_FAIL_INVALID_SCHEMA)
       ) {
         ((Map<String, Object>) configs).put(
-            KafkaYangJsonSchemaSerializerConfig.YANG_JSON_FAIL_INVALID_SCHEMA, "true");
+            KafkaYangCborSchemaDeserializerConfig.YANG_CBOR_FAIL_INVALID_SCHEMA, "true");
       }
-      configure(new KafkaYangJsonSchemaSerializerConfig(configs));
+      configure(new KafkaYangCborSchemaSerializerConfig(configs));
     }
 
     @Override

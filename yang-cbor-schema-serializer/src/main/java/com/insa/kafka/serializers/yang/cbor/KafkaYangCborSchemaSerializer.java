@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.insa.kafka.serializers.yang.json;
+package com.insa.kafka.serializers.yang.cbor;
 
 import com.swisscom.kafka.schemaregistry.yang.YangSchema;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
@@ -24,7 +24,7 @@ import org.apache.kafka.common.serialization.Serializer;
 
 import java.util.Map;
 
-public class KafkaYangSchemaSerializer<T> extends AbstractKafkaYangSchemaSerializer<T>
+public class KafkaYangCborSchemaSerializer<T> extends AbstractKafkaYangCborSchemaSerializer<T>
     implements Serializer<T> {
 
   private static int DEFAULT_CACHE_CAPACITY = 1000;
@@ -34,11 +34,11 @@ public class KafkaYangSchemaSerializer<T> extends AbstractKafkaYangSchemaSeriali
   /**
    * Constructor used by Kafka producer.
    */
-  public KafkaYangSchemaSerializer() {
+  public KafkaYangCborSchemaSerializer() {
     this.schemaCache = new BoundedConcurrentHashMap<>(DEFAULT_CACHE_CAPACITY);
   }
 
-  public KafkaYangSchemaSerializer(SchemaRegistryClient client) {
+  public KafkaYangCborSchemaSerializer(SchemaRegistryClient client) {
     this.schemaRegistry = client;
     this.ticker = ticker(client);
     this.schemaCache = new BoundedConcurrentHashMap<>(DEFAULT_CACHE_CAPACITY);
@@ -47,7 +47,7 @@ public class KafkaYangSchemaSerializer<T> extends AbstractKafkaYangSchemaSeriali
   @Override
   public void configure(Map<String, ?> config, boolean isKey) {
     this.isKey = isKey;
-    configure(new KafkaYangSchemaSerializerConfig(config));
+    configure(new KafkaYangCborSchemaSerializerConfig(config));
   }
 
   @Override

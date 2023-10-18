@@ -17,9 +17,9 @@
 package com.insa.kafka.streams.serdes.yangjson;
 
 
-import com.insa.kafka.serializers.yang.json.KafkaYangSchemaDeserializer;
-import com.insa.kafka.serializers.yang.json.KafkaYangSchemaDeserializerConfig;
-import com.insa.kafka.serializers.yang.json.KafkaYangSchemaSerializer;
+import com.insa.kafka.serializers.yang.json.KafkaYangJsonSchemaDeserializer;
+import com.insa.kafka.serializers.yang.json.KafkaYangJsonSchemaDeserializerConfig;
+import com.insa.kafka.serializers.yang.json.KafkaYangJsonSchemaSerializer;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
@@ -38,14 +38,14 @@ public class KafkaYangJsonSerde<T> implements Serde<T> {
   private final Serde<T> inner;
 
   public KafkaYangJsonSerde() {
-    inner = Serdes.serdeFrom(new KafkaYangSchemaSerializer<>(),
-        new KafkaYangSchemaDeserializer<>());
+    inner = Serdes.serdeFrom(new KafkaYangJsonSchemaSerializer<>(),
+        new KafkaYangJsonSchemaDeserializer<>());
   }
 
   public KafkaYangJsonSerde(Class<T> specificClass) {
     this.specificClass = specificClass;
-    inner = Serdes.serdeFrom(new KafkaYangSchemaSerializer<>(),
-        new KafkaYangSchemaDeserializer<>());
+    inner = Serdes.serdeFrom(new KafkaYangJsonSchemaSerializer<>(),
+        new KafkaYangJsonSchemaDeserializer<>());
   }
 
   @Override
@@ -79,12 +79,12 @@ public class KafkaYangJsonSerde<T> implements Serde<T> {
         config == null ? new HashMap<String, Object>() : new HashMap<>(config);
     if (isKey) {
       newConfig.put(
-          KafkaYangSchemaDeserializerConfig.YANG_JSON_KEY_TYPE,
+          KafkaYangJsonSchemaDeserializerConfig.YANG_JSON_KEY_TYPE,
           specificClass
       );
     } else {
       newConfig.put(
-          KafkaYangSchemaDeserializerConfig.YANG_JSON_VALUE_TYPE,
+          KafkaYangJsonSchemaDeserializerConfig.YANG_JSON_VALUE_TYPE,
           specificClass
       );
     }

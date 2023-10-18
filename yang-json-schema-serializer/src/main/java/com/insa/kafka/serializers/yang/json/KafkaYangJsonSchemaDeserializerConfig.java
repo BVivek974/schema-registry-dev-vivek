@@ -21,17 +21,28 @@ import org.apache.kafka.common.config.ConfigDef;
 
 import java.util.Map;
 
-public class KafkaYangSchemaSerializerConfig extends AbstractKafkaSchemaSerDeConfig {
+public class KafkaYangJsonSchemaDeserializerConfig extends AbstractKafkaSchemaSerDeConfig {
 
-  public static final String YANG_JSON_FAIL_UNKNOWN_PROPERTIES = "yang.json.fail.unknown.properties";
+
+  public static final String YANG_JSON_FAIL_UNKNOWN_PROPERTIES =
+      "yang.json.fail.unknown.properties";
   public static final boolean YANG_JSON_FAIL_UNKNOWN_PROPERTIES_DEFAULT = true;
-  public static final String YANG_JSON_FAIL_UNKNOWN_PROPERTIES_DOC = "Whether to fail serialization"
-      + " if unknown YANG-JSON properties are encountered";
+  public static final String YANG_JSON_FAIL_UNKNOWN_PROPERTIES_DOC = "Whether to fail "
+      + "deserialization if unknown YANG-JSON properties are encountered";
   public static final String YANG_JSON_FAIL_INVALID_SCHEMA = "yang.json.fail.invalid.schema";
   public static final boolean YANG_JSON_FAIL_INVALID_SCHEMA_DEFAULT = false;
-  public static final String YANG_JSON_FAIL_INVALID_SCHEMA_DOC = "Whether to fail serialization if"
-      + " the YANG-JSON payload does not match the schema";
+  public static final String YANG_JSON_FAIL_INVALID_SCHEMA_DOC = "Whether to fail deserialization"
+      + "if the YANG-JSON payload does not match the schema";
 
+  public static final String YANG_JSON_KEY_TYPE = "yang.json.key.type";
+  public static final String YANG_JSON_KEY_TYPE_DEFAULT = Object.class.getName();
+  public static final String YANG_JSON_KEY_TYPE_DOC = "Classname of the type that the message key "
+      + "should be deserialized to";
+
+  public static final String YANG_JSON_VALUE_TYPE = "yang.json.value.type";
+  public static final String YANG_JSON_VALUE_TYPE_DEFAULT = Object.class.getName();
+  public static final String YANG_JSON_VALUE_TYPE_DOC = "Classname of the type that the message "
+      + "value should be deserialized to";
 
   private static ConfigDef config;
 
@@ -46,10 +57,21 @@ public class KafkaYangSchemaSerializerConfig extends AbstractKafkaSchemaSerDeCon
         YANG_JSON_FAIL_INVALID_SCHEMA_DEFAULT,
         ConfigDef.Importance.MEDIUM,
         YANG_JSON_FAIL_INVALID_SCHEMA_DOC
+    ).define(YANG_JSON_KEY_TYPE,
+        ConfigDef.Type.CLASS,
+        YANG_JSON_KEY_TYPE_DEFAULT,
+        ConfigDef.Importance.MEDIUM,
+        YANG_JSON_KEY_TYPE_DOC
+    ).define(YANG_JSON_VALUE_TYPE,
+        ConfigDef.Type.CLASS,
+        YANG_JSON_VALUE_TYPE_DEFAULT,
+        ConfigDef.Importance.MEDIUM,
+        YANG_JSON_VALUE_TYPE_DOC
     );
   }
 
-  public KafkaYangSchemaSerializerConfig(Map<?, ?> props) {
+  public KafkaYangJsonSchemaDeserializerConfig(Map<?, ?> props) {
     super(config, props);
   }
+
 }
