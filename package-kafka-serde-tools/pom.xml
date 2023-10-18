@@ -61,12 +61,27 @@
         </dependency>
         <dependency>
             <groupId>io.confluent</groupId>
+            <artifactId>kafka-yang-cbor-schema-serializer</artifactId>
+            <version>${io.confluent.schema-registry.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.confluent</groupId>
             <artifactId>kafka-connect-json-schema-converter</artifactId>
             <version>${io.confluent.schema-registry.version}</version>
         </dependency>
         <dependency>
             <groupId>io.confluent</groupId>
             <artifactId>kafka-streams-json-schema-serde</artifactId>
+            <version>${io.confluent.schema-registry.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.confluent</groupId>
+            <artifactId>kafka-streams-yang-json-schema-serde</artifactId>
+            <version>${io.confluent.schema-registry.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.confluent</groupId>
+            <artifactId>kafka-streams-yang-cbor-schema-serde</artifactId>
             <version>${io.confluent.schema-registry.version}</version>
         </dependency>
         <dependency>
