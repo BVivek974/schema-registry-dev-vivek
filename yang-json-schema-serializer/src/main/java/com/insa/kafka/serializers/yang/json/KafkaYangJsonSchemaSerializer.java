@@ -22,6 +22,7 @@ import io.confluent.kafka.schemaregistry.utils.BoundedConcurrentHashMap;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Serializer;
 
+import java.io.IOException;
 import java.util.Map;
 
 public class KafkaYangJsonSchemaSerializer<T> extends AbstractKafkaYangJsonSchemaSerializer<T>
@@ -78,6 +79,10 @@ public class KafkaYangJsonSchemaSerializer<T> extends AbstractKafkaYangJsonSchem
 
   @Override
   public void close() {
-    super.close();
+    try {
+      super.close();
+    } catch (IOException e) {
+      throw new RuntimeException("Exception while closing serializer", e);
+    }
   }
 }
