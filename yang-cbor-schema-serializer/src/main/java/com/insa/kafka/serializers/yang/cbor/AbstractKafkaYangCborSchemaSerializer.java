@@ -84,8 +84,6 @@ public abstract class AbstractKafkaYangCborSchemaSerializer<T> extends AbstractK
         restClientErrorMsg = "Error retrieving YANG schema: ";
         id = schemaRegistry.getId(subject, schema, normalizeSchema);
       }
-      System.out.println("--> YANG SchemaID:" + id);
-      //System.out.println("Schemareg:" + restClientErrorMsg);
       object = (T) executeRules(subject, topic, headers, RuleMode.WRITE, null, schema, object);
       if (validate) {
         validateYangCborMessage(object, schema);

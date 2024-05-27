@@ -103,7 +103,6 @@ public abstract class AbstractKafkaYangJsonSchemaDeserializer<T> extends Abstrac
       id = buffer.getInt();
       String subject = isKey == null || strategyUsesSchema(isKey)
           ? getContextName(topic) : subjectName(topic, isKey, null);
-      System.out.println("Deserialize: SchemaId=" + id);
       YangSchema schema = ((YangSchema) schemaRegistry.getSchemaBySubjectAndId(subject, id));
 
       ParsedSchema readerSchema = null;
@@ -144,7 +143,6 @@ public abstract class AbstractKafkaYangJsonSchemaDeserializer<T> extends Abstrac
       }
 
       if (validate) {
-        System.out.println("Validating at deserialization");
         try {
           if (jsonNode == null) {
             jsonNode = objectMapper.readValue(buffer.array(), start, length, JsonNode.class);

@@ -248,13 +248,6 @@ public class YangSchema implements ParsedSchema {
 
   public static void validate(YangSchemaContext schemaContext, JsonNode jsonNode)
       throws YangCodecException {
-    System.out.println("TODO_ALEX: validate jsonNode against Module");
-    System.out.println("Schema Context:" + schemaContext.getModules().size());
-    for (Module module : schemaContext.getModules()) {
-      System.out.println("Modules:" + module.getModuleId().getModuleName());
-    }
-
-    System.out.println("Json node:" + jsonNode + " -- " + jsonNode.isNull());
     ValidatorResultBuilder validatorResultBuilder = new ValidatorResultBuilder();
     YangDataDocument yangDataDocument = new YangDataParser(
         jsonNode, schemaContext, false).parse(validatorResultBuilder);
