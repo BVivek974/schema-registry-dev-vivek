@@ -97,7 +97,7 @@ public abstract class AbstractKafkaYangCborSchemaSerializer<T> extends AbstractK
       out.close();
       return bytes;
     } catch (YangCodecException | IOException e) {
-      throw new SerializationException("Error serializing JSON message", e);
+      throw new SerializationException("Error serializing CBOR message", e);
     } catch (RestClientException e) {
       throw toKafkaException(e, restClientErrorMsg + schema);
     } finally {
@@ -109,6 +109,7 @@ public abstract class AbstractKafkaYangCborSchemaSerializer<T> extends AbstractK
                                          YangSchema schema)
       throws SerializationException, YangCodecException {
     JsonNode jsonNode = objectMapper.convertValue(object, JsonNode.class);
+    schema.validate();
     schema.validate(jsonNode);
   }
 }

@@ -148,6 +148,7 @@ public abstract class AbstractKafkaYangCborSchemaDeserializer<T> extends Abstrac
           if (jsonNode == null) {
             jsonNode = objectMapper.readValue(buffer.array(), start, length, JsonNode.class);
           }
+          schema.validate();
           schema.validate(jsonNode);
         } catch (YangCodecException e) {
           throw new SerializationException("YANG JSON "
@@ -161,9 +162,9 @@ public abstract class AbstractKafkaYangCborSchemaDeserializer<T> extends Abstrac
       }
       return jsonNode;
     } catch (InterruptedIOException e) {
-      throw new TimeoutException("Error deserializing YANG-JSON message for id " + id, e);
+      throw new TimeoutException("Error deserializing YANG-CBOR message for id " + id, e);
     } catch (IOException | RuntimeException e) {
-      throw new SerializationException("Error deserializing YANG-JSON message for id " + id, e);
+      throw new SerializationException("Error deserializing YANG-CBOR message for id " + id, e);
     } catch (RestClientException e) {
       throw toKafkaException(e, "Error retrieving YANG schema for id " + id);
     } finally {

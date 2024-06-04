@@ -252,6 +252,12 @@ public class YangSchema implements ParsedSchema {
     YangDataDocument yangDataDocument = new YangDataParser(
         jsonNode, schemaContext, false).parse(validatorResultBuilder);
     yangDataDocument.update();
+    ValidatorResult parseResult = validatorResultBuilder.build();
+
+    if (!parseResult.isOk()) {
+      throw new YangCodecException("YANG encoded message is not valid");
+    }
+
     ValidatorResult validationResult = yangDataDocument.validate();
 
     if (!validationResult.isOk()) {
