@@ -17,7 +17,10 @@
 package com.insa.kafka.serializers.yang.json;
 
 import com.swisscom.kafka.schemaregistry.yang.YangSchema;
+import com.swisscom.kafka.schemaregistry.yang.YangSchemaProvider;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
+import io.confluent.kafka.schemaregistry.client.rest.entities.Schema;
+import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaString;
 import io.confluent.kafka.schemaregistry.utils.BoundedConcurrentHashMap;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Serializer;
@@ -25,8 +28,9 @@ import org.apache.kafka.common.serialization.Serializer;
 import java.io.IOException;
 import java.util.Map;
 
-public class KafkaYangJsonSchemaSerializer<T> extends AbstractKafkaYangJsonSchemaSerializer<T>
-    implements Serializer<T> {
+public class KafkaYangJsonSchemaSerializer
+        extends AbstractKafkaYangJsonSchemaSerializer<YangJsonRecord>
+        implements Serializer<YangJsonRecord> {
 
   private static int DEFAULT_CACHE_CAPACITY = 1000;
 
@@ -52,12 +56,12 @@ public class KafkaYangJsonSchemaSerializer<T> extends AbstractKafkaYangJsonSchem
   }
 
   @Override
-  public byte[] serialize(String topic, T record) {
+  public byte[] serialize(String topic, YangJsonRecord record) {
     return serialize(topic, null, record);
   }
 
   @Override
-  public byte[] serialize(String topic, Headers headers, T record) {
+  public byte[] serialize(String topic, Headers headers, YangJsonRecord record) {
     System.out.println("TODO_ALEX: AM I serializing?");
     if (record == null) {
       return null;
@@ -72,9 +76,10 @@ public class KafkaYangJsonSchemaSerializer<T> extends AbstractKafkaYangJsonSchem
         getSubjectName(topic, isKey, record, schema), topic, headers, record, schema);
   }
 
-  private YangSchema getSchema(T record) {
-    //TODO_ALEX:
-    return null;
+  private YangSchema getSchema(YangJsonRecord record) {
+    Schema schema = new Schema(null, null, null, new SchemaString(record.getSchemaString()));
+    YangSchemaProvider yangSchemaProvider = new YangSchemaProvider();
+    return (YangSchema) yangSchemaProvider.parseSchemaOrElseThrow(schema, true,true);
   }
 
   @Override
