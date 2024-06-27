@@ -38,14 +38,14 @@ public class KafkaYangJsonSerde<T> implements Serde<T> {
   private final Serde<T> inner;
 
   public KafkaYangJsonSerde() {
-    inner = Serdes.serdeFrom(new KafkaYangJsonSchemaSerializer<>(),
-        new KafkaYangJsonSchemaDeserializer<>());
+    inner = Serdes.serdeFrom(new KafkaYangJsonSchemaSerializer(),
+        new KafkaYangJsonSchemaDeserializer());
   }
 
   public KafkaYangJsonSerde(Class<T> specificClass) {
     this.specificClass = specificClass;
-    inner = Serdes.serdeFrom(new KafkaYangJsonSchemaSerializer<>(),
-        new KafkaYangJsonSchemaDeserializer<>());
+    inner = Serdes.serdeFrom(new KafkaYangJsonSchemaSerializer(),
+        new KafkaYangJsonSchemaDeserializer());
   }
 
   @Override
