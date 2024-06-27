@@ -46,7 +46,7 @@ public abstract class AbstractKafkaYangJsonSchemaDeserializer<T> extends Abstrac
   protected ObjectMapper objectMapper = Jackson.newObjectMapper();
   protected boolean validate;
 
-  protected void configure(KafkaYangJsonSchemaDeserializerConfig config, Class<T> type) {
+  protected void configure(KafkaYangJsonSchemaDeserializerConfig config, Class<?> type) {
     configureClientProperties(config, new YangSchemaProvider());
 
     boolean failUnknownProperties =

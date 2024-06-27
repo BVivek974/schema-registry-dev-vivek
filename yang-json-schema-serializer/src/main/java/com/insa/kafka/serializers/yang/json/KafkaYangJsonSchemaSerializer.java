@@ -33,7 +33,7 @@ import org.yangcentral.yangkit.data.api.model.YangDataDocument;
 import java.io.IOException;
 import java.util.Map;
 
-public class KafkaYangJsonSchemaSerializer
+public class KafkaYangJsonSchemaSerializer<T>
         extends AbstractKafkaYangJsonSchemaSerializer<JsonNode>
         implements Serializer<YangDataDocument> {
 

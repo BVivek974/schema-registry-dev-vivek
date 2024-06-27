@@ -16,15 +16,18 @@
 
 package com.insa.kafka.serializers.yang.json;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Deserializer;
+import org.yangcentral.yangkit.data.api.model.YangDataDocument;
 
 import java.io.IOException;
 import java.util.Map;
 
-public class KafkaYangJsonSchemaDeserializer<T> extends AbstractKafkaYangJsonSchemaDeserializer<T>
-    implements Deserializer<T> {
+public class KafkaYangJsonSchemaDeserializer<T>
+        extends AbstractKafkaYangJsonSchemaDeserializer<JsonNode>
+        implements Deserializer<JsonNode> {
 
   /**
    * Constructor used by Kafka consumer.
@@ -34,19 +37,20 @@ public class KafkaYangJsonSchemaDeserializer<T> extends AbstractKafkaYangJsonSch
 
   public KafkaYangJsonSchemaDeserializer(SchemaRegistryClient client) {
     this.schemaRegistry = client;
+    this.ticker = ticker(client);
   }
 
   public KafkaYangJsonSchemaDeserializer(SchemaRegistryClient client, Map<String, ?> props) {
-    this(client, props, null);
+    this(client, props, false);
   }
 
   public KafkaYangJsonSchemaDeserializer(
       SchemaRegistryClient client,
       Map<String, ?> props,
-      Class<T> type
+      boolean isKey
   ) {
     this.schemaRegistry = client;
-    configure(deserializerConfig(props), type);
+    configure(deserializerConfig(props), isKey);
   }
 
 
@@ -57,6 +61,7 @@ public class KafkaYangJsonSchemaDeserializer<T> extends AbstractKafkaYangJsonSch
 
   protected void configure(KafkaYangJsonSchemaDeserializerConfig config, boolean isKey) {
     this.isKey = isKey;
+    configure(config, YangDataDocument.class);
     //if (isKey) {
     //configure(
     //config,
@@ -71,13 +76,13 @@ public class KafkaYangJsonSchemaDeserializer<T> extends AbstractKafkaYangJsonSch
   }
 
   @Override
-  public T deserialize(String topic, byte[] data) {
+  public JsonNode deserialize(String topic, byte[] data) {
     return deserialize(topic, null, data);
   }
 
   @Override
-  public T deserialize(String topic, Headers headers, byte[] bytes) {
-    return (T) deserialize(false, topic, isKey, headers, bytes);
+  public JsonNode deserialize(String topic, Headers headers, byte[] bytes) {
+    return (JsonNode) deserialize(false, topic, isKey, headers, bytes);
   }
 
   @Override
