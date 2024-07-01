@@ -242,11 +242,11 @@ public class YangSchema implements ParsedSchema {
     }
   }
 
-  public void validate(JsonNode jsonNode) throws YangCodecException {
-    validate(context, jsonNode);
+  public YangDataDocument validate(JsonNode jsonNode) throws YangCodecException {
+    return validate(context, jsonNode);
   }
 
-  public static void validate(YangSchemaContext schemaContext, JsonNode jsonNode)
+  public static YangDataDocument validate(YangSchemaContext schemaContext, JsonNode jsonNode)
       throws YangCodecException {
     ValidatorResultBuilder validatorResultBuilder = new ValidatorResultBuilder();
     YangDataDocument yangDataDocument = new YangDataParser(
@@ -263,6 +263,11 @@ public class YangSchema implements ParsedSchema {
     if (!validationResult.isOk()) {
       throw new YangCodecException("YANG encoded message is not valid");
     }
+    return yangDataDocument;
+  }
+
+  public YangDataDocument createYangDataDocument(JsonNode jsonNode) {
+    return new YangDataParser(jsonNode, context, false).parse(new ValidatorResultBuilder());
   }
 
   @Override

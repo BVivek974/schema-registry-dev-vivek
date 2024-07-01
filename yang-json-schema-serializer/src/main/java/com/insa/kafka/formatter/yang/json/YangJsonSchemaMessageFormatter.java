@@ -16,6 +16,7 @@
 
 package com.insa.kafka.formatter.yang.json;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.insa.kafka.serializers.yang.json.AbstractKafkaYangJsonSchemaDeserializer;
@@ -29,12 +30,13 @@ import io.confluent.kafka.schemaregistry.json.jackson.Jackson;
 import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Deserializer;
+import org.yangcentral.yangkit.data.api.model.YangDataDocument;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Map;
 
-public class YangJsonSchemaMessageFormatter extends SchemaMessageFormatter<JsonNode> {
+public class YangJsonSchemaMessageFormatter extends SchemaMessageFormatter<YangDataDocument> {
 
   private static final ObjectMapper objectMapper = Jackson.newObjectMapper();
 
@@ -48,8 +50,15 @@ public class YangJsonSchemaMessageFormatter extends SchemaMessageFormatter<JsonN
   @Override
   protected void writeTo(String topic, Headers headers, byte[] data, PrintStream output)
       throws IOException {
-    JsonNode object = deserializer.deserialize(topic, headers, data);
-    output.println(objectMapper.writeValueAsString(object));
+    YangDataDocument object = deserializer.deserialize(topic, headers, data);
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode jsonNode;
+    try {
+      jsonNode = mapper.readTree(object.getDocString());
+      output.println(objectMapper.writeValueAsString(jsonNode));
+    } catch (JsonProcessingException ignored) {
+      output.println(objectMapper.writeValueAsString("error reading value"));
+    }
   }
 
   @Override
@@ -58,8 +67,8 @@ public class YangJsonSchemaMessageFormatter extends SchemaMessageFormatter<JsonN
   }
 
   static class YangJsonSchemaMessageDeserializer
-      extends AbstractKafkaYangJsonSchemaDeserializer<JsonNode>
-      implements SchemaMessageDeserializer<JsonNode> {
+      extends AbstractKafkaYangJsonSchemaDeserializer
+      implements SchemaMessageDeserializer<YangDataDocument> {
 
     protected final Deserializer keyDeserializer;
 
@@ -89,9 +98,9 @@ public class YangJsonSchemaMessageFormatter extends SchemaMessageFormatter<JsonN
     }
 
     @Override
-    public JsonNode deserialize(String topic, Headers headers, byte[] payload)
+    public YangDataDocument deserialize(String topic, Headers headers, byte[] payload)
         throws SerializationException {
-      return (JsonNode) super.deserialize(false, topic, isKey, headers,
+      return (YangDataDocument) super.deserialize(false, topic, isKey, headers,
           payload);
     }
 

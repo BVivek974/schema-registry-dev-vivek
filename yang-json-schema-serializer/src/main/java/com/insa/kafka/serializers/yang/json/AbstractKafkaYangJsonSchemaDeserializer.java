@@ -32,6 +32,7 @@ import org.apache.kafka.common.errors.InvalidConfigurationException;
 import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.errors.TimeoutException;
 import org.apache.kafka.common.header.Headers;
+import org.yangcentral.yangkit.data.api.model.YangDataDocument;
 import org.yangcentral.yangkit.model.api.codec.YangCodecException;
 
 import java.io.IOException;
@@ -84,7 +85,7 @@ public abstract class AbstractKafkaYangJsonSchemaDeserializer<T> extends Abstrac
     return deserialize(includeSchemaAndVersion, topic, isKey, null, payload);
   }
 
-  protected Object deserialize(
+  protected YangDataDocument deserialize(
       boolean includeSchemaAndVersion, String topic, Boolean isKey, Headers headers, byte[] payload
   ) throws SerializationException, InvalidConfigurationException {
     if (schemaRegistry == null) {
@@ -126,6 +127,7 @@ public abstract class AbstractKafkaYangJsonSchemaDeserializer<T> extends Abstrac
       int start = buffer.position() + buffer.arrayOffset();
 
       JsonNode jsonNode = null;
+      YangDataDocument yangDataDocument = null;
       if (!migrations.isEmpty()) {
         jsonNode = objectMapper.readValue(buffer.array(), start, length, JsonNode.class);
         jsonNode = (JsonNode) executeMigrations(migrations, subject, topic, headers, jsonNode);
@@ -147,7 +149,7 @@ public abstract class AbstractKafkaYangJsonSchemaDeserializer<T> extends Abstrac
           if (jsonNode == null) {
             jsonNode = objectMapper.readValue(buffer.array(), start, length, JsonNode.class);
           }
-          schema.validate(jsonNode);
+          yangDataDocument = schema.validate(jsonNode);
         } catch (YangCodecException e) {
           throw new SerializationException("YANG JSON "
               + jsonNode
@@ -158,7 +160,10 @@ public abstract class AbstractKafkaYangJsonSchemaDeserializer<T> extends Abstrac
       if (jsonNode == null) {
         jsonNode = objectMapper.readValue(buffer.array(), start, length, JsonNode.class);
       }
-      return jsonNode;
+      if (yangDataDocument == null) {
+        yangDataDocument = schema.createYangDataDocument(jsonNode);
+      }
+      return yangDataDocument;
     } catch (InterruptedIOException e) {
       throw new TimeoutException("Error deserializing YANG-JSON message for id " + id, e);
     } catch (IOException | RuntimeException e) {

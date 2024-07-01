@@ -16,7 +16,6 @@
 
 package com.insa.kafka.serializers.yang.json;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Deserializer;
@@ -26,8 +25,8 @@ import java.io.IOException;
 import java.util.Map;
 
 public class KafkaYangJsonSchemaDeserializer<T>
-        extends AbstractKafkaYangJsonSchemaDeserializer<JsonNode>
-        implements Deserializer<JsonNode> {
+        extends AbstractKafkaYangJsonSchemaDeserializer
+        implements Deserializer<YangDataDocument> {
 
   /**
    * Constructor used by Kafka consumer.
@@ -76,13 +75,13 @@ public class KafkaYangJsonSchemaDeserializer<T>
   }
 
   @Override
-  public JsonNode deserialize(String topic, byte[] data) {
+  public YangDataDocument deserialize(String topic, byte[] data) {
     return deserialize(topic, null, data);
   }
 
   @Override
-  public JsonNode deserialize(String topic, Headers headers, byte[] bytes) {
-    return (JsonNode) deserialize(false, topic, isKey, headers, bytes);
+  public YangDataDocument deserialize(String topic, Headers headers, byte[] bytes) {
+    return deserialize(false, topic, isKey, headers, bytes);
   }
 
   @Override
