@@ -57,7 +57,7 @@ public abstract class AbstractKafkaYangJsonSchemaDeserializer<T> extends Abstrac
         failUnknownProperties
     );
     this.validate =
-        config.getBoolean(KafkaYangJsonSchemaDeserializerConfig.YANG_JSON_FAIL_UNKNOWN_PROPERTIES);
+        config.getBoolean(KafkaYangJsonSchemaDeserializerConfig.YANG_JSON_FAIL_INVALID_SCHEMA);
   }
 
   protected KafkaYangJsonSchemaDeserializerConfig deserializerConfig(Map<String, ?> props) {
