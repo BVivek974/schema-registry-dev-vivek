@@ -21,15 +21,16 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.swisscom.kafka.schemaregistry.yang.YangSchema;
-import com.swisscom.kafka.schemaregistry.yang.YangSchemaProvider;
+import io.confluent.kafka.schemaregistry.ParsedSchema;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
-import io.confluent.kafka.schemaregistry.client.rest.entities.Schema;
 import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaReference;
+import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException;
 import io.confluent.kafka.schemaregistry.utils.BoundedConcurrentHashMap;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Serializer;
 import org.yangcentral.yangkit.data.api.model.YangDataDocument;
 import org.yangcentral.yangkit.model.api.stmt.Import;
+import org.yangcentral.yangkit.model.api.stmt.MainModule;
 import org.yangcentral.yangkit.model.api.stmt.Module;
 
 import java.io.IOException;
@@ -97,29 +98,38 @@ public class KafkaYangJsonSchemaSerializer<T>
 
   private YangSchema getSchema(YangDataDocument record) {
     List<Module> modules = record.getSchemaContext().getModules();
-    // si 0 schema
     if (modules.isEmpty()) {
       return null;
     }
-    if (modules.size() == 1) {
-      // si 1 schema
-      Module singleModule = modules.get(0);
-      List<Import> imports = singleModule.getImports();
+    MainModule mainModule = modules.get(0).getMainModule();
+    List<SchemaReference> mainModuleReferences = new ArrayList<>();
+    for (Module module : modules) {
+      List<Import> imports = module.getImports();
       List<SchemaReference> references = new ArrayList<>();
       for (Import currentImport : imports) {
         String subject = currentImport.getArgStr();
         SchemaReference ref = new SchemaReference(subject, subject, -1);
-        references.add(ref);
+        if (module == mainModule) {
+          mainModuleReferences.add(ref);
+        } else {
+          references.add(ref);
+        }
       }
-      System.out.println("class " + this.schemaRegistry.getClass());
-      return (YangSchema) this.schemaRegistry.parseSchema(YangSchema.TYPE,
-              singleModule.getOriginalString(), references).get();
+      if (module != mainModule) {
+        ParsedSchema newSchema = this.schemaRegistry.parseSchema(YangSchema.TYPE,
+                module.getOriginalString(), references).get();
+        try {
+          this.schemaRegistry.register(module.getArgStr(), newSchema);
+        } catch (IOException | RestClientException e) {
+          throw new RuntimeException(e);
+        }
+      }
     }
-    // si plusieurs schema
-    return null;
+    return (YangSchema) this.schemaRegistry.parseSchema(YangSchema.TYPE,
+            mainModule.getOriginalString(), mainModuleReferences).get();
   }
 
-  
+
   @Override
   public void close() {
     try {
