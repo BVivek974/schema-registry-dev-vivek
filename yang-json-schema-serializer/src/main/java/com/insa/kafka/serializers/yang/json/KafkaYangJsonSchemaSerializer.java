@@ -24,13 +24,17 @@ import com.swisscom.kafka.schemaregistry.yang.YangSchema;
 import com.swisscom.kafka.schemaregistry.yang.YangSchemaProvider;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.rest.entities.Schema;
-import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaString;
+import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaReference;
 import io.confluent.kafka.schemaregistry.utils.BoundedConcurrentHashMap;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Serializer;
 import org.yangcentral.yangkit.data.api.model.YangDataDocument;
+import org.yangcentral.yangkit.model.api.stmt.Import;
+import org.yangcentral.yangkit.model.api.stmt.Module;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class KafkaYangJsonSchemaSerializer<T>
@@ -92,12 +96,30 @@ public class KafkaYangJsonSchemaSerializer<T>
   }
 
   private YangSchema getSchema(YangDataDocument record) {
-    String[] modules = record.getModulesStrings();
-    Schema schema = new Schema(null, null, null, new SchemaString(modules[0]));
-    YangSchemaProvider yangSchemaProvider = new YangSchemaProvider();
-    return (YangSchema) yangSchemaProvider.parseSchemaOrElseThrow(schema, true,true);
+    List<Module> modules = record.getSchemaContext().getModules();
+    // si 0 schema
+    if (modules.isEmpty()) {
+      return null;
+    }
+    if (modules.size() == 1) {
+      // si 1 schema
+      Module singleModule = modules.get(0);
+      List<Import> imports = singleModule.getImports();
+      List<SchemaReference> references = new ArrayList<>();
+      for (Import currentImport : imports) {
+        String subject = currentImport.getArgStr();
+        SchemaReference ref = new SchemaReference(subject, subject, -1);
+        references.add(ref);
+      }
+      System.out.println("class " + this.schemaRegistry.getClass());
+      return (YangSchema) this.schemaRegistry.parseSchema(YangSchema.TYPE,
+              singleModule.getOriginalString(), references).get();
+    }
+    // si plusieurs schema
+    return null;
   }
 
+  
   @Override
   public void close() {
     try {
