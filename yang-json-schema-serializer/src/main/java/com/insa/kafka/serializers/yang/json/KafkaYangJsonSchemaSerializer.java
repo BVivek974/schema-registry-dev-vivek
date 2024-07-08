@@ -30,7 +30,6 @@ import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Serializer;
 import org.yangcentral.yangkit.data.api.model.YangDataDocument;
 import org.yangcentral.yangkit.model.api.stmt.Import;
-import org.yangcentral.yangkit.model.api.stmt.MainModule;
 import org.yangcentral.yangkit.model.api.stmt.Module;
 
 import java.io.IOException;
@@ -101,32 +100,52 @@ public class KafkaYangJsonSchemaSerializer<T>
     if (modules.isEmpty()) {
       return null;
     }
-    MainModule mainModule = modules.get(0).getMainModule();
-    List<SchemaReference> mainModuleReferences = new ArrayList<>();
-    for (Module module : modules) {
-      List<Import> imports = module.getImports();
-      List<SchemaReference> references = new ArrayList<>();
-      for (Import currentImport : imports) {
-        String subject = currentImport.getArgStr();
-        SchemaReference ref = new SchemaReference(subject, subject, -1);
-        if (module == mainModule) {
-          mainModuleReferences.add(ref);
-        } else {
-          references.add(ref);
-        }
-      }
-      if (module != mainModule) {
+    List<List<Module>> dependenciesOrder = record.getSchemaContext().resolvesImportOrder();
+    List<ParsedSchema> schemas = new ArrayList<>();
+    for (List<Module> dependencies : dependenciesOrder) {
+      Module tempLastModule = dependencies.get(dependencies.size() - 1);
+      for (Module m : dependencies) {
+        List<SchemaReference> references = getReferencesFromImport(m);
         ParsedSchema newSchema = this.schemaRegistry.parseSchema(YangSchema.TYPE,
-                module.getOriginalString(), references).get();
-        try {
-          this.schemaRegistry.register(module.getArgStr(), newSchema);
-        } catch (IOException | RestClientException e) {
-          throw new RuntimeException(e);
+                m.getOriginalString(), references).get();
+        if (dependenciesOrder.size() != 1 || tempLastModule != m) {
+          try {
+            this.schemaRegistry.register(m.getArgStr(), newSchema);
+          } catch (IOException | RestClientException e) {
+            throw new RuntimeException(e);
+          }
+        }
+        if (tempLastModule == m) {
+          schemas.add(newSchema);
         }
       }
     }
+    if (schemas.size() == 1) {
+      return (YangSchema) schemas.get(0);
+    }
+    List<SchemaReference> moduleReferences = new ArrayList<>();
+    StringBuilder schemaName = new StringBuilder();
+    for (ParsedSchema m : schemas) {
+      moduleReferences.add(new SchemaReference(m.name(),m.name(), -1));
+      schemaName.append(m.name()).append("-");
+    }
     return (YangSchema) this.schemaRegistry.parseSchema(YangSchema.TYPE,
-            mainModule.getOriginalString(), mainModuleReferences).get();
+            createYangSchema(schemaName.toString()), moduleReferences).get();
+  }
+
+  private List<SchemaReference> getReferencesFromImport(Module m) {
+    List<Import> imports = m.getImports();
+    List<SchemaReference> references = new ArrayList<>();
+    for (Import currentImport : imports) {
+      String subject = currentImport.getArgStr();
+      SchemaReference ref = new SchemaReference(subject, subject, -1);
+      references.add(ref);
+    }
+    return references;
+  }
+
+  private String createYangSchema(String name) {
+    return "module " + name + "{yang-version 1.1; namespace \"zzz\"; prefix zzz;}";
   }
 
 
