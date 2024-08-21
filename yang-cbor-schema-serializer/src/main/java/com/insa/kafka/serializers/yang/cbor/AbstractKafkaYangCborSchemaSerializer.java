@@ -109,7 +109,6 @@ public abstract class AbstractKafkaYangCborSchemaSerializer<T> extends AbstractK
                                          YangSchema schema)
       throws SerializationException, YangCodecException {
     JsonNode jsonNode = objectMapper.convertValue(object, JsonNode.class);
-    schema.validate();
     schema.validate(jsonNode);
   }
 }
