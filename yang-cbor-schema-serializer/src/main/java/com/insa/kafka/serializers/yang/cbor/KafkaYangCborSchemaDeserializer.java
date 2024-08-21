@@ -19,12 +19,14 @@ package com.insa.kafka.serializers.yang.cbor;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Deserializer;
+import org.yangcentral.yangkit.data.api.model.YangDataDocument;
 
 import java.io.IOException;
 import java.util.Map;
 
-public class KafkaYangCborSchemaDeserializer<T> extends AbstractKafkaYangCborSchemaDeserializer<T>
-    implements Deserializer<T> {
+public class KafkaYangCborSchemaDeserializer<T>
+        extends AbstractKafkaYangCborSchemaDeserializer
+        implements Deserializer<YangDataDocument> {
 
   /**
    * Constructor used by Kafka consumer.
@@ -34,19 +36,20 @@ public class KafkaYangCborSchemaDeserializer<T> extends AbstractKafkaYangCborSch
 
   public KafkaYangCborSchemaDeserializer(SchemaRegistryClient client) {
     this.schemaRegistry = client;
+    this.ticker = ticker(client);
   }
 
   public KafkaYangCborSchemaDeserializer(SchemaRegistryClient client, Map<String, ?> props) {
-    this(client, props, null);
+    this(client, props, false);
   }
 
   public KafkaYangCborSchemaDeserializer(
       SchemaRegistryClient client,
       Map<String, ?> props,
-      Class<T> type
+      boolean isKey
   ) {
     this.schemaRegistry = client;
-    configure(deserializerConfig(props), type);
+    configure(deserializerConfig(props), isKey);
   }
 
 
@@ -57,6 +60,7 @@ public class KafkaYangCborSchemaDeserializer<T> extends AbstractKafkaYangCborSch
 
   protected void configure(KafkaYangCborSchemaDeserializerConfig config, boolean isKey) {
     this.isKey = isKey;
+    configure(config, YangDataDocument.class);
     //if (isKey) {
     //configure(
     //config,
@@ -71,13 +75,13 @@ public class KafkaYangCborSchemaDeserializer<T> extends AbstractKafkaYangCborSch
   }
 
   @Override
-  public T deserialize(String topic, byte[] data) {
+  public YangDataDocument deserialize(String topic, byte[] data) {
     return deserialize(topic, null, data);
   }
 
   @Override
-  public T deserialize(String topic, Headers headers, byte[] bytes) {
-    return (T) deserialize(false, topic, isKey, headers, bytes);
+  public YangDataDocument deserialize(String topic, Headers headers, byte[] bytes) {
+    return  deserialize(false, topic, isKey, headers, bytes);
   }
 
   @Override

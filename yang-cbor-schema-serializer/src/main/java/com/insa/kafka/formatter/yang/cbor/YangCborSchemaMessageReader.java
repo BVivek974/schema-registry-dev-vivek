@@ -18,6 +18,7 @@ package com.insa.kafka.formatter.yang.cbor;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
 import com.insa.kafka.serializers.yang.cbor.AbstractKafkaYangCborSchemaSerializer;
 import com.insa.kafka.serializers.yang.cbor.KafkaYangCborSchemaDeserializerConfig;
 import com.insa.kafka.serializers.yang.cbor.KafkaYangCborSchemaSerializerConfig;
@@ -41,7 +42,7 @@ import java.util.Map;
 public class YangCborSchemaMessageReader extends SchemaMessageReader<JsonNode>
     implements MessageReader {
 
-  private static final ObjectMapper objectMapper = Jackson.newObjectMapper();
+  private static final ObjectMapper objectMapper = Jackson.newObjectMapper(new CBORFactory());
 
   /**
    * Constructor needed by kafka console producer.

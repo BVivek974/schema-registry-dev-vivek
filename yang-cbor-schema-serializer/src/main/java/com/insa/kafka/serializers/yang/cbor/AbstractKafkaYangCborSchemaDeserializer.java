@@ -33,6 +33,7 @@ import org.apache.kafka.common.errors.InvalidConfigurationException;
 import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.errors.TimeoutException;
 import org.apache.kafka.common.header.Headers;
+import org.yangcentral.yangkit.data.api.model.YangDataDocument;
 import org.yangcentral.yangkit.model.api.codec.YangCodecException;
 
 import java.io.IOException;
@@ -47,7 +48,7 @@ public abstract class AbstractKafkaYangCborSchemaDeserializer<T> extends Abstrac
   protected ObjectMapper objectMapper = Jackson.newObjectMapper(new CBORFactory());
   protected boolean validate;
 
-  protected void configure(KafkaYangCborSchemaDeserializerConfig config, Class<T> type) {
+  protected void configure(KafkaYangCborSchemaDeserializerConfig config, Class<?> type) {
     configureClientProperties(config, new YangSchemaProvider());
 
     boolean failUnknownProperties =
@@ -57,7 +58,7 @@ public abstract class AbstractKafkaYangCborSchemaDeserializer<T> extends Abstrac
         failUnknownProperties
     );
     this.validate =
-        config.getBoolean(KafkaYangCborSchemaDeserializerConfig.YANG_CBOR_FAIL_UNKNOWN_PROPERTIES);
+        config.getBoolean(KafkaYangCborSchemaDeserializerConfig.YANG_CBOR_FAIL_INVALID_SCHEMA);
   }
 
   protected KafkaYangCborSchemaDeserializerConfig deserializerConfig(Map<String, ?> props) {
@@ -85,7 +86,7 @@ public abstract class AbstractKafkaYangCborSchemaDeserializer<T> extends Abstrac
     return deserialize(includeSchemaAndVersion, topic, isKey, null, payload);
   }
 
-  protected Object deserialize(
+  protected YangDataDocument deserialize(
       boolean includeSchemaAndVersion, String topic, Boolean isKey, Headers headers, byte[] payload
   ) throws SerializationException, InvalidConfigurationException {
     if (schemaRegistry == null) {
@@ -127,6 +128,7 @@ public abstract class AbstractKafkaYangCborSchemaDeserializer<T> extends Abstrac
       int start = buffer.position() + buffer.arrayOffset();
 
       JsonNode jsonNode = null;
+      YangDataDocument yangDataDocument = null;
       if (!migrations.isEmpty()) {
         jsonNode = objectMapper.readValue(buffer.array(), start, length, JsonNode.class);
         jsonNode = (JsonNode) executeMigrations(migrations, subject, topic, headers, jsonNode);
@@ -148,8 +150,7 @@ public abstract class AbstractKafkaYangCborSchemaDeserializer<T> extends Abstrac
           if (jsonNode == null) {
             jsonNode = objectMapper.readValue(buffer.array(), start, length, JsonNode.class);
           }
-          schema.validate();
-          schema.validate(jsonNode);
+          yangDataDocument = schema.validate(jsonNode);
         } catch (YangCodecException e) {
           throw new SerializationException("YANG JSON "
               + jsonNode
@@ -160,7 +161,10 @@ public abstract class AbstractKafkaYangCborSchemaDeserializer<T> extends Abstrac
       if (jsonNode == null) {
         jsonNode = objectMapper.readValue(buffer.array(), start, length, JsonNode.class);
       }
-      return jsonNode;
+      if (yangDataDocument == null) {
+        yangDataDocument = schema.createYangDataDocument(jsonNode);
+      }
+      return yangDataDocument;
     } catch (InterruptedIOException e) {
       throw new TimeoutException("Error deserializing YANG-CBOR message for id " + id, e);
     } catch (IOException | RuntimeException e) {
