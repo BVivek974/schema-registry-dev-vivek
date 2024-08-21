@@ -51,10 +51,9 @@ public class YangJsonSchemaMessageFormatter extends SchemaMessageFormatter<YangD
   protected void writeTo(String topic, Headers headers, byte[] data, PrintStream output)
       throws IOException {
     YangDataDocument object = deserializer.deserialize(topic, headers, data);
-    ObjectMapper mapper = new ObjectMapper();
     JsonNode jsonNode;
     try {
-      jsonNode = mapper.readTree(object.getDocString());
+      jsonNode = objectMapper.readTree(object.getDocString());
       output.println(objectMapper.writeValueAsString(jsonNode));
     } catch (JsonProcessingException ignored) {
       output.println(objectMapper.writeValueAsString("error reading value"));
