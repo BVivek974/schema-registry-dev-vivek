@@ -39,7 +39,7 @@ import java.util.Map;
 
 public class YangCborSchemaMessageFormatter extends SchemaMessageFormatter<YangDataDocument> {
 
-  private static final ObjectMapper objectMapper = Jackson.newObjectMapper(new CBORFactory());
+  private static final ObjectMapper objectMapper = Jackson.newObjectMapper();
 
   public YangCborSchemaMessageFormatter() {}
 
