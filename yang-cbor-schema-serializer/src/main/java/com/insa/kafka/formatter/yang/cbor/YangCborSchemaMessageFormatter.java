@@ -19,7 +19,6 @@ package com.insa.kafka.formatter.yang.cbor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
 import com.insa.kafka.serializers.yang.cbor.AbstractKafkaYangCborSchemaDeserializer;
 import com.insa.kafka.serializers.yang.cbor.KafkaYangCborSchemaDeserializerConfig;
 import com.swisscom.kafka.schemaregistry.yang.YangSchemaProvider;
