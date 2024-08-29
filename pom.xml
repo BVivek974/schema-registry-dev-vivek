@@ -111,7 +111,7 @@
         <io.confluent.schema-registry.version>7.5.1</io.confluent.schema-registry.version>
         <commons.compress.version>1.21</commons.compress.version>
         <commons.lang3.version>3.12.0</commons.lang3.version>
-        <yangkit.version>1.4.0</yangkit.version>
+        <yangkit.version>1.4.5</yangkit.version>
     </properties>
 
     <repositories>

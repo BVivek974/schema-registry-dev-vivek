@@ -33,7 +33,7 @@ import org.yangcentral.yangkit.comparator.CompatibilityRule;
 import org.yangcentral.yangkit.comparator.YangComparator;
 import org.yangcentral.yangkit.comparator.YangCompareResult;
 import org.yangcentral.yangkit.data.api.model.YangDataDocument;
-import org.yangcentral.yangkit.data.codec.json.YangDataParser;
+import org.yangcentral.yangkit.data.codec.json.YangDataDocumentJsonParser;
 import org.yangcentral.yangkit.model.api.codec.YangCodecException;
 import org.yangcentral.yangkit.model.api.schema.YangSchemaContext;
 import org.yangcentral.yangkit.model.api.stmt.Module;
@@ -249,8 +249,8 @@ public class YangSchema implements ParsedSchema {
   public static YangDataDocument validate(YangSchemaContext schemaContext, JsonNode jsonNode)
       throws YangCodecException {
     ValidatorResultBuilder validatorResultBuilder = new ValidatorResultBuilder();
-    YangDataDocument yangDataDocument = new YangDataParser(
-        jsonNode, schemaContext, false).parse(validatorResultBuilder);
+    YangDataDocument yangDataDocument = new YangDataDocumentJsonParser(schemaContext)
+            .parse(jsonNode, validatorResultBuilder);
     yangDataDocument.update();
     ValidatorResult parseResult = validatorResultBuilder.build();
 
@@ -267,7 +267,7 @@ public class YangSchema implements ParsedSchema {
   }
 
   public YangDataDocument createYangDataDocument(JsonNode jsonNode) {
-    return new YangDataParser(jsonNode, context, false).parse(new ValidatorResultBuilder());
+    return new YangDataDocumentJsonParser(context).parse(jsonNode, new ValidatorResultBuilder());
   }
 
   @Override

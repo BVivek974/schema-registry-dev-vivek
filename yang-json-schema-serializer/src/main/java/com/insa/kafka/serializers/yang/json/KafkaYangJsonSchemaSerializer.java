@@ -19,7 +19,6 @@ package com.insa.kafka.serializers.yang.json;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.swisscom.kafka.schemaregistry.yang.YangSchema;
 import io.confluent.kafka.schemaregistry.ParsedSchema;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
@@ -82,17 +81,15 @@ public class KafkaYangJsonSchemaSerializer<T>
     }
 
     ObjectMapper mapper = new ObjectMapper();
-    ObjectNode data = mapper.createObjectNode();
     JsonNode node;
     try {
       node = mapper.readTree(record.getDocString());
-      data.set("data", node);
     } catch (JsonProcessingException e) {
       return null;
     }
 
     return serializeImpl(
-      getSubjectName(topic, isKey, record, schema), topic, headers, data, schema);
+      getSubjectName(topic, isKey, record, schema), topic, headers, node, schema);
   }
 
   private YangSchema getSchema(YangDataDocument record) {
