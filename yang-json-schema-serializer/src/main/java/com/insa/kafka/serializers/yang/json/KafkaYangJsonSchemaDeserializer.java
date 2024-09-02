@@ -61,17 +61,6 @@ public class KafkaYangJsonSchemaDeserializer<T>
   protected void configure(KafkaYangJsonSchemaDeserializerConfig config, boolean isKey) {
     this.isKey = isKey;
     configure(config, YangDataDocument.class);
-    //if (isKey) {
-    //configure(
-    //config,
-    //(Class<T>) config.getClass(KafkaYangSchemaDeserializerConfig.JSON_KEY_TYPE)
-    //);
-    //} else {
-    //configure(
-    //config,
-    //(Class<T>) config.getClass(KafkaYangSchemaDeserializerConfig.JSON_VALUE_TYPE)
-    //);
-    //}
   }
 
   @Override

@@ -68,9 +68,6 @@ public abstract class AbstractKafkaYangJsonSchemaDeserializer<T> extends Abstrac
     }
   }
 
-  //  protected KafkaYangSchemaDeserializerConfig deserializerConfig(Properties props) {
-  //    return new KafkaYangSchemaDeserializerConfig(props);
-  //  }
 
   public ObjectMapper objectMapper() {
     return objectMapper;

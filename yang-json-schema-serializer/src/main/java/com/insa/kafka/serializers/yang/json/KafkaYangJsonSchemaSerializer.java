@@ -70,12 +70,10 @@ public class KafkaYangJsonSchemaSerializer<T>
 
   @Override
   public byte[] serialize(String topic, Headers headers, YangDataDocument record) {
-    System.out.println("TODO_ALEX: AM I serializing?");
     if (record == null) {
       return null;
     }
     YangSchema schema = schemaCache.computeIfAbsent(record.getClass(), k -> getSchema(record));
-    System.out.println("Schema is: " + schema);
     if (schema == null) {
       return null;
     }
