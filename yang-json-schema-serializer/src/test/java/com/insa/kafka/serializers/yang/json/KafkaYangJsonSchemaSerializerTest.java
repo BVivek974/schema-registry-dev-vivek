@@ -194,6 +194,60 @@ public class KafkaYangJsonSchemaSerializerTest {
     assertThrowsExactly(SerializationException.class, () -> deserializer.deserialize(topic, bytes));
   }
 
+  @Test
+  public void test4() {
+    byte[] bytes;
+    YangDataDocument doc = getRecord(
+        this.getClass().getClassLoader().getResource("serializer/json/test4/yangs").getFile(),
+        this.getClass().getClassLoader().getResource("serializer/json/test4/valid.json").getFile());
 
+    JsonNode jsonNode = getJsonNodeFromFile(this.getClass().getClassLoader().getResource("serializer/json/test4/valid.json").getFile());
+    bytes = serializer.serialize(topic, doc);
+    assertEquals(jsonNode, getJsonNode(deserializer.deserialize(topic, bytes)));
+  }
+
+  @Test
+  public void test5() {
+    YangDataDocument doc = getRecord(
+        this.getClass().getClassLoader().getResource("serializer/json/test5/yangs").getFile(),
+        this.getClass().getClassLoader().getResource("serializer/json/test5/invalid.json").getFile());
+
+    assertThrowsExactly(SerializationException.class, () -> serializer.serialize(topic, doc));
+  }
+
+  @Test
+  public void test6() {
+    byte[] bytes;
+    YangDataDocument doc = getRecord(
+        this.getClass().getClassLoader().getResource("serializer/json/test6/yangs").getFile(),
+        this.getClass().getClassLoader().getResource("serializer/json/test6/invalid.json").getFile());
+
+    bytes = assertDoesNotThrow(() -> noValidationSerializer.serialize(topic, doc));
+    assertThrowsExactly(SerializationException.class, () -> deserializer.deserialize(topic, bytes));
+  }
+
+  @Test
+  public void test7() {
+    byte[] bytes;
+    YangDataDocument doc = getRecord(
+        this.getClass().getClassLoader().getResource("serializer/json/test7/yangs").getFile(),
+        this.getClass().getClassLoader().getResource("serializer/json/test7/valid.json").getFile());
+
+    JsonNode jsonNode = getJsonNodeFromFile(this.getClass().getClassLoader().getResource("serializer/json/test7/valid.json").getFile());
+    bytes = serializer.serialize(topic, doc);
+    assertEquals(jsonNode, getJsonNode(deserializer.deserialize(topic, bytes)));
+  }
+
+  @Test
+  public void test8() {
+    byte[] bytes;
+    YangDataDocument doc = getRecord(
+        this.getClass().getClassLoader().getResource("serializer/json/test8/yangs").getFile(),
+        this.getClass().getClassLoader().getResource("serializer/json/test8/valid.json").getFile());
+
+    JsonNode jsonNode = getJsonNodeFromFile(this.getClass().getClassLoader().getResource("serializer/json/test8/valid.json").getFile());
+    bytes = serializer.serialize(topic, doc);
+    assertEquals(jsonNode, getJsonNode(deserializer.deserialize(topic, bytes)));
+  }
 
 }
