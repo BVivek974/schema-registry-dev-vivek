@@ -64,11 +64,11 @@ public class KafkaYangJsonSchemaSerializerTest {
   }
 
   private <T> YangDataDocument getRecord(T o) {
-    YangDataDocument doc = null;
+    YangDataDocument doc;
     String newString = "{\"data\":{\"insa-test:insa-container\":{\"d\":" + o + "}}}";
     ObjectMapper mapper = new ObjectMapper();
     try {
-      YangSchemaContext schemaContext = YangYinParser.parse(this.getClass().getClassLoader().getResource("yangs/test.yang").getFile());
+      YangSchemaContext schemaContext = YangYinParser.parse(this.getClass().getClassLoader().getResource("serializer/yangs/test.yang").getFile());
       schemaContext.validate();
       JsonNode jsonNode = mapper.readTree(newString);
       doc = new YangDataDocumentJsonParser(schemaContext).parse(jsonNode, new ValidatorResultBuilder());
@@ -79,7 +79,7 @@ public class KafkaYangJsonSchemaSerializerTest {
   }
 
   private YangDataDocument getRecord(String yang, String json) {
-    YangDataDocument doc = null;
+    YangDataDocument doc;
     ObjectMapper mapper = new ObjectMapper();
     try {
       YangSchemaContext schemaContext = YangYinParser.parse(yang);
@@ -166,10 +166,10 @@ public class KafkaYangJsonSchemaSerializerTest {
   public void test1() {
     byte[] bytes;
     YangDataDocument doc = getRecord(
-        this.getClass().getClassLoader().getResource("json/test1/test.yang").getFile(),
-        this.getClass().getClassLoader().getResource("json/test1/valid.json").getFile());
+        this.getClass().getClassLoader().getResource("serializer/json/test1/test.yang").getFile(),
+        this.getClass().getClassLoader().getResource("serializer/json/test1/valid.json").getFile());
 
-    JsonNode jsonNode = getJsonNodeFromFile(this.getClass().getClassLoader().getResource("json/test1/valid.json").getFile());
+    JsonNode jsonNode = getJsonNodeFromFile(this.getClass().getClassLoader().getResource("serializer/json/test1/valid.json").getFile());
     bytes = serializer.serialize(topic, doc);
     assertEquals(jsonNode, getJsonNode(deserializer.deserialize(topic, bytes)));
   }
@@ -177,8 +177,8 @@ public class KafkaYangJsonSchemaSerializerTest {
   @Test
   public void test2() {
     YangDataDocument doc = getRecord(
-        this.getClass().getClassLoader().getResource("json/test2/test.yang").getFile(),
-        this.getClass().getClassLoader().getResource("json/test2/invalid.json").getFile());
+        this.getClass().getClassLoader().getResource("serializer/json/test2/test.yang").getFile(),
+        this.getClass().getClassLoader().getResource("serializer/json/test2/invalid.json").getFile());
 
     assertThrowsExactly(SerializationException.class, () -> serializer.serialize(topic, doc));
   }
@@ -187,8 +187,8 @@ public class KafkaYangJsonSchemaSerializerTest {
   public void test3() {
     byte[] bytes;
     YangDataDocument doc = getRecord(
-        this.getClass().getClassLoader().getResource("json/test3/test.yang").getFile(),
-        this.getClass().getClassLoader().getResource("json/test3/invalid.json").getFile());
+        this.getClass().getClassLoader().getResource("serializer/json/test3/test.yang").getFile(),
+        this.getClass().getClassLoader().getResource("serializer/json/test3/invalid.json").getFile());
 
     bytes = assertDoesNotThrow(() -> noValidationSerializer.serialize(topic, doc));
     assertThrowsExactly(SerializationException.class, () -> deserializer.deserialize(topic, bytes));
