@@ -47,12 +47,12 @@ public class KafkaYangJsonSchemaSerializerTest {
     deserializer.configure(new HashMap<>(config), true);
 
     Properties noValidationConfig = new Properties(config);
-    noValidationConfig.put(KafkaYangJsonSchemaSerializerConfig.AUTO_REGISTER_SCHEMAS, false);
+    noValidationConfig.put(KafkaYangJsonSchemaSerializerConfig.AUTO_REGISTER_SCHEMAS, true);
     noValidationConfig.put(KafkaYangJsonSchemaSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, "bogus");
-    config.put(KafkaYangJsonSchemaSerializerConfig.YANG_JSON_FAIL_INVALID_SCHEMA, false);
+    noValidationConfig.put(KafkaYangJsonSchemaSerializerConfig.YANG_JSON_FAIL_INVALID_SCHEMA, false);
 
     noValidationSerializer = new KafkaYangJsonSchemaSerializer(schemaRegistry);
-    noValidationSerializer.configure(new HashMap<>(config), true);
+    noValidationSerializer.configure(new HashMap<>(noValidationConfig), true);
 
     topic = "test";
   }
