@@ -27,7 +27,6 @@ import io.confluent.kafka.formatter.SchemaMessageSerializer;
 import io.confluent.kafka.schemaregistry.ParsedSchema;
 import io.confluent.kafka.schemaregistry.SchemaProvider;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
-import io.confluent.kafka.schemaregistry.json.JsonSchema;
 import io.confluent.kafka.schemaregistry.json.jackson.Jackson;
 import kafka.common.MessageReader;
 import org.apache.kafka.common.errors.SerializationException;
