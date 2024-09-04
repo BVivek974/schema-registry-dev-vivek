@@ -48,12 +48,12 @@ public class KafkaYangCborSchemaSerializerTest {
     deserializer.configure(new HashMap<>(config), true);
 
     Properties noValidationConfig = new Properties(config);
-    noValidationConfig.put(KafkaYangCborSchemaSerializerConfig.AUTO_REGISTER_SCHEMAS, false);
+    noValidationConfig.put(KafkaYangCborSchemaSerializerConfig.AUTO_REGISTER_SCHEMAS, true);
     noValidationConfig.put(KafkaYangCborSchemaSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, "bogus");
-    config.put(KafkaYangCborSchemaSerializerConfig.YANG_CBOR_FAIL_INVALID_SCHEMA, false);
+    noValidationConfig.put(KafkaYangCborSchemaSerializerConfig.YANG_CBOR_FAIL_INVALID_SCHEMA, false);
 
     noValidationSerializer = new KafkaYangCborSchemaSerializer(schemaRegistry);
-    noValidationSerializer.configure(new HashMap<>(config), true);
+    noValidationSerializer.configure(new HashMap<>(noValidationConfig), true);
 
     topic = "test";
   }
