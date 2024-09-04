@@ -69,7 +69,7 @@ public class KafkaYangCborSchemaSerializerTest {
     String newString = "{\"data\":{\"insa-test:insa-container\":{\"d\":" + o + "}}}";
     ObjectMapper mapper = new ObjectMapper();
     try {
-      YangSchemaContext schemaContext = YangYinParser.parse(this.getClass().getClassLoader().getResource("yangs/test.yang").getFile());
+      YangSchemaContext schemaContext = YangYinParser.parse(this.getClass().getClassLoader().getResource("serializer/yangs/test.yang").getFile());
       schemaContext.validate();
       JsonNode jsonNode = mapper.readTree(newString);
       doc = new YangDataDocumentJsonParser(schemaContext).parse(jsonNode, new ValidatorResultBuilder());
@@ -167,10 +167,10 @@ public class KafkaYangCborSchemaSerializerTest {
   public void test1() {
     byte[] bytes;
     YangDataDocument doc = getRecord(
-        this.getClass().getClassLoader().getResource("cbor/test1/test.yang").getFile(),
-        this.getClass().getClassLoader().getResource("cbor/test1/valid.cbor").getFile());
+        this.getClass().getClassLoader().getResource("serializer/cbor/test1/test.yang").getFile(),
+        this.getClass().getClassLoader().getResource("serializer/cbor/test1/valid.cbor").getFile());
 
-    JsonNode jsonNode = getJsonNodeFromFile(this.getClass().getClassLoader().getResource("cbor/test1/valid.cbor").getFile());
+    JsonNode jsonNode = getJsonNodeFromFile(this.getClass().getClassLoader().getResource("serializer/cbor/test1/valid.cbor").getFile());
     bytes = serializer.serialize(topic, doc);
     assertEquals(jsonNode, getJsonNode(deserializer.deserialize(topic, bytes)));
   }
@@ -178,8 +178,8 @@ public class KafkaYangCborSchemaSerializerTest {
   @Test
   public void test2() {
     YangDataDocument doc = getRecord(
-        this.getClass().getClassLoader().getResource("cbor/test2/test.yang").getFile(),
-        this.getClass().getClassLoader().getResource("cbor/test2/invalid.cbor").getFile());
+        this.getClass().getClassLoader().getResource("serializer/cbor/test2/test.yang").getFile(),
+        this.getClass().getClassLoader().getResource("serializer/cbor/test2/invalid.cbor").getFile());
 
     assertThrowsExactly(SerializationException.class, () -> serializer.serialize(topic, doc));
   }
@@ -188,11 +188,66 @@ public class KafkaYangCborSchemaSerializerTest {
   public void test3() {
     byte[] bytes;
     YangDataDocument doc = getRecord(
-        this.getClass().getClassLoader().getResource("cbor/test3/test.yang").getFile(),
-        this.getClass().getClassLoader().getResource("cbor/test3/invalid.cbor").getFile());
+        this.getClass().getClassLoader().getResource("serializer/cbor/test3/test.yang").getFile(),
+        this.getClass().getClassLoader().getResource("serializer/cbor/test3/invalid.cbor").getFile());
 
     bytes = assertDoesNotThrow(() -> noValidationSerializer.serialize(topic, doc));
     assertThrowsExactly(SerializationException.class, () -> deserializer.deserialize(topic, bytes));
+  }
+
+  @Test
+  public void test4() {
+    byte[] bytes;
+    YangDataDocument doc = getRecord(
+        this.getClass().getClassLoader().getResource("serializer/cbor/test4/yangs").getFile(),
+        this.getClass().getClassLoader().getResource("serializer/cbor/test4/valid.cbor").getFile());
+    JsonNode jsonNode = getJsonNodeFromFile(this.getClass().getClassLoader().getResource("serializer/cbor/test4/valid.cbor").getFile());
+    bytes = serializer.serialize(topic, doc);
+    assertEquals(jsonNode, getJsonNode(deserializer.deserialize(topic, bytes)));
+  }
+
+  @Test
+  public void test5() {
+    YangDataDocument doc = getRecord(
+        this.getClass().getClassLoader().getResource("serializer/cbor/test5/yangs").getFile(),
+        this.getClass().getClassLoader().getResource("serializer/cbor/test5/invalid.cbor").getFile());
+
+    assertThrowsExactly(SerializationException.class, () -> serializer.serialize(topic, doc));
+  }
+
+  @Test
+  public void test6() {
+    byte[] bytes;
+    YangDataDocument doc = getRecord(
+        this.getClass().getClassLoader().getResource("serializer/cbor/test6/yangs").getFile(),
+        this.getClass().getClassLoader().getResource("serializer/cbor/test6/invalid.cbor").getFile());
+
+    bytes = assertDoesNotThrow(() -> noValidationSerializer.serialize(topic, doc));
+    assertThrowsExactly(SerializationException.class, () -> deserializer.deserialize(topic, bytes));
+  }
+
+  @Test
+  public void test7() {
+    byte[] bytes;
+    YangDataDocument doc = getRecord(
+        this.getClass().getClassLoader().getResource("serializer/cbor/test7/yangs").getFile(),
+        this.getClass().getClassLoader().getResource("serializer/cbor/test7/valid.cbor").getFile());
+
+    JsonNode jsonNode = getJsonNodeFromFile(this.getClass().getClassLoader().getResource("serializer/cbor/test7/valid.cbor").getFile());
+    bytes = serializer.serialize(topic, doc);
+    assertEquals(jsonNode, getJsonNode(deserializer.deserialize(topic, bytes)));
+  }
+
+  @Test
+  public void test8() {
+    byte[] bytes;
+    YangDataDocument doc = getRecord(
+        this.getClass().getClassLoader().getResource("serializer/cbor/test8/yangs").getFile(),
+        this.getClass().getClassLoader().getResource("serializer/cbor/test8/valid.cbor").getFile());
+
+    JsonNode jsonNode = getJsonNodeFromFile(this.getClass().getClassLoader().getResource("serializer/cbor/test8/valid.cbor").getFile());
+    bytes = serializer.serialize(topic, doc);
+    assertEquals(jsonNode, getJsonNode(deserializer.deserialize(topic, bytes)));
   }
 
 
