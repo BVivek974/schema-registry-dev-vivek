@@ -20,6 +20,7 @@ package com.insa.kafka.streams.serdes.yangjson;
 import com.insa.kafka.serializers.yang.json.KafkaYangJsonSchemaDeserializer;
 import com.insa.kafka.serializers.yang.json.KafkaYangJsonSchemaDeserializerConfig;
 import com.insa.kafka.serializers.yang.json.KafkaYangJsonSchemaSerializer;
+import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
@@ -46,6 +47,25 @@ public class KafkaYangJsonSerde<T> implements Serde<T> {
     this.specificClass = specificClass;
     inner = Serdes.serdeFrom(new KafkaYangJsonSchemaSerializer(),
         new KafkaYangJsonSchemaDeserializer());
+  }
+
+  /**
+   * For testing purposes only.
+   */
+  public KafkaYangJsonSerde(final SchemaRegistryClient client) {
+    this(client, null);
+  }
+
+  /**
+   * For testing purposes only.
+   */
+  public KafkaYangJsonSerde(final SchemaRegistryClient client, final Class<T> specificClass) {
+    if (client == null) {
+      throw new IllegalArgumentException("schema registry client must not be null");
+    }
+    this.specificClass = specificClass;
+    inner = (Serde<T>) Serdes.serdeFrom(new KafkaYangJsonSchemaSerializer<>(client),
+        new KafkaYangJsonSchemaDeserializer<>(client));
   }
 
   @Override
