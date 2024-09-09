@@ -35,6 +35,7 @@ import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Serializer;
 import org.everit.json.schema.ValidationException;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Map;
 
@@ -47,6 +48,24 @@ public class YangCborSchemaMessageReader extends SchemaMessageReader<JsonNode>
    * Constructor needed by kafka console producer.
    */
   public YangCborSchemaMessageReader() {
+  }
+
+  /**
+   * For testing only.
+   */
+  YangCborSchemaMessageReader(
+      String url,
+      YangSchema keySchema,
+      YangSchema valueSchema,
+      String topic,
+      boolean parseKey,
+      BufferedReader reader,
+      boolean normalizeSchema,
+      boolean autoRegister,
+      boolean useLatest
+  ) {
+    super(url, keySchema, valueSchema, topic,
+        parseKey, reader, normalizeSchema, autoRegister, useLatest);
   }
 
   @Override
