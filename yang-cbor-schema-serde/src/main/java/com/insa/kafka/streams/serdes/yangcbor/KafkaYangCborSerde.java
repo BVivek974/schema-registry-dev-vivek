@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.insa.kafka.serdes.yangcbor;
+package com.insa.kafka.streams.serdes.yangcbor;
 
 
 import com.insa.kafka.serializers.yang.cbor.KafkaYangCborSchemaDeserializer;
 import com.insa.kafka.serializers.yang.cbor.KafkaYangCborSchemaDeserializerConfig;
 import com.insa.kafka.serializers.yang.cbor.KafkaYangCborSchemaSerializer;
+import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
@@ -46,6 +47,25 @@ public class KafkaYangCborSerde<T> implements Serde<T> {
     this.specificClass = specificClass;
     inner = Serdes.serdeFrom(new KafkaYangCborSchemaSerializer(),
         new KafkaYangCborSchemaDeserializer());
+  }
+
+  /**
+   * For testing purposes only.
+   */
+  public KafkaYangCborSerde(final SchemaRegistryClient client) {
+    this(client, null);
+  }
+
+  /**
+   * For testing purposes only.
+   */
+  public KafkaYangCborSerde(final SchemaRegistryClient client, final Class<T> specificClass) {
+    if (client == null) {
+      throw new IllegalArgumentException("schema registry client must not be null");
+    }
+    this.specificClass = specificClass;
+    inner = (Serde<T>) Serdes.serdeFrom(new KafkaYangCborSchemaSerializer<>(client),
+        new KafkaYangCborSchemaDeserializer<>(client));
   }
 
   @Override
